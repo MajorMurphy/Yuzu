@@ -9,6 +9,7 @@ namespace yuzu
         //==============================================================================
         /** Tries the built-in formats to see if it can find one to read this stream.
             There are currently built-in decoders for PNG, JPEG and GIF formats.
+            HEIC can be decoded if YUZU_LINK_LIBHEIF or JUCE_USING_COREIMAGE_LOADER
             The object that is returned should not be deleted by the caller.
             @see canUnderstand, decodeImage, loadFrom
         */
