@@ -127,17 +127,19 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
                 }
                 else
                 {
+                    String extentions("*.jpg;*.jpeg;*.png;*.gif");
+#if YUZU_LINK_LIBHEIF || JUCE_USING_COREIMAGE_LOADER
+                    extentions += ";*.heic;*.heif";
+#endif
                     ptr->chooser = std::make_unique<juce::FileChooser>("Open Image",
                         File::getSpecialLocation(File::SpecialLocationType::userPicturesDirectory),
-                        "*.jpg;*.jpeg;*.png;*.gif", 
-                        true);
+                        extentions, true);
                     auto folderChooserFlags = FileBrowserComponent::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles;
-
 
                     ptr->chooser->launchAsync(folderChooserFlags, [ptr](const FileChooser& chooser) 
                     {
                         if (chooser.getResult().existsAsFile())
-                            ptr->setImage(ImageFileFormat::loadFrom(chooser.getResult()));
+                            ptr->setImage(yuzu::ImageFileFormat::loadFrom(chooser.getResult()));
                     });
                     
                 }
