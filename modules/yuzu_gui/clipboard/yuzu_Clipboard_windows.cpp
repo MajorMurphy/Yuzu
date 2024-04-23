@@ -10,15 +10,25 @@ Image yuzu::SystemClipboard::getImageFromClipboard()
 {
     Image img;
     if (!IsClipboardFormatAvailable(CF_DIB))
+    {
+        jassertfalse;
+        auto error = GetLastError();
+        DBG("CF_DIB clipboard format not available. Error: " + String(error));
         return img;
+    }
 
     if (!OpenClipboard(NULL))
+    {
+        jassertfalse;
         return img;
+    }
 
     auto hCb = GetClipboardData(CF_DIB);
     if (!hCb || hCb == INVALID_HANDLE_VALUE)
+    {
+        jassertfalse;
         return img;
-
+    }
     auto data = GlobalLock(hCb);
     if (data)
     {
@@ -76,10 +86,18 @@ Image yuzu::SystemClipboard::getImageFromClipboard()
 void yuzu::SystemClipboard::copyImageToClipboard(Image image)
 {
     if (!IsClipboardFormatAvailable(CF_DIB))
+    {
+        jassertfalse;
+        auto error = GetLastError();
+        DBG("CF_DIB clipboard format not available. Error: " + String(error));
         return;
-    if (!OpenClipboard(NULL))
-        return;
+    }
 
+    if (!OpenClipboard(NULL))
+    {
+        jassertfalse;
+        return;
+    }
     image = image.convertedToFormat(Image::PixelFormat::RGB);
 
     BITMAPINFOHEADER header;
