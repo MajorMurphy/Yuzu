@@ -10,5 +10,8 @@ namespace yuzu
 
 		/** Place binary image on clipboard **/
 		static void copyImageToClipboard(juce::Image image);
+
+	private:
+		JUCE_LEAK_DETECTOR(SystemClipboard)
 	};
 }

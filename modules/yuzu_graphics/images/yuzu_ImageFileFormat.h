@@ -38,6 +38,7 @@ namespace yuzu
     private:
         juce::PNGImageFormat fmt;
 
+        JUCE_LEAK_DETECTOR(PNGImageExtendedFormat)
     };
 
     class WEBPImageExtendedFormat : public yuzu::ExtendedImageFileFormat
@@ -57,7 +58,7 @@ namespace yuzu
 
     private:
         gin::WEBPImageFormat fmt;
-
+        JUCE_LEAK_DETECTOR(WEBPImageExtendedFormat)
     };
 
     class BMPImageExtendedFormat : public yuzu::ExtendedImageFileFormat
@@ -77,7 +78,7 @@ namespace yuzu
 
     private:
         gin::BMPImageFormat fmt;
-
+        JUCE_LEAK_DETECTOR(BMPImageExtendedFormat)
     };
 
     class GIFImageExtendedFormat : public yuzu::ExtendedImageFileFormat
@@ -97,7 +98,7 @@ namespace yuzu
 
     private:
         juce::GIFImageFormat fmt;
-
+        JUCE_LEAK_DETECTOR(GIFImageExtendedFormat)
     };
 
     class JPEGImageExtendedFormat : public yuzu::ExtendedImageFileFormat
@@ -117,7 +118,7 @@ namespace yuzu
 
     private:
         juce::JPEGImageFormat fmt;
-
+        JUCE_LEAK_DETECTOR(JPEGImageExtendedFormat)
     };
 
     class HEIFImageExtendedFormat : public yuzu::ExtendedImageFileFormat
@@ -141,7 +142,7 @@ namespace yuzu
         heif_context* ctx = nullptr;
         heif_image_handle* primaryImageHandle = nullptr;
 #endif
-
+        JUCE_LEAK_DETECTOR(HEIFImageExtendedFormat)
     };
 
     // wrapper for compatibility with juce::ImageFileFormat
@@ -156,6 +157,9 @@ namespace yuzu
         bool canUnderstand(juce::InputStream&)  override;
         juce::Image decodeImage(juce::InputStream&) override;
         bool writeImageToStream(const juce::Image& sourceImage, juce::OutputStream& destStream) override;
+
+    private:
+        JUCE_LEAK_DETECTOR(HEIFImageFormat)
     };
 
 }
