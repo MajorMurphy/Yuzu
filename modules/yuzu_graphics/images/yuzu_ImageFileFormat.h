@@ -3,7 +3,7 @@
 namespace yuzu
 {
 
-    class ImageFileFormat
+    class ImageFileFormat : public juce::ImageFileFormat
     {
     public: 
         //==============================================================================
@@ -49,6 +49,9 @@ namespace yuzu
         */
         static juce::Image loadFrom(const void* rawData,  size_t numBytesOfData);
 
+
+        virtual bool loadMetadataFromImage(juce::InputStream& is, juce::OwnedArray<gin::ImageMetadata>& metadata) = 0;
+
     };
 
     //==============================================================================
@@ -59,7 +62,7 @@ namespace yuzu
 
     @tags{Graphics}
     */
-    class HEIFImageFormat : public juce::ImageFileFormat
+    class HEIFImageFormat : public yuzu::ImageFileFormat
     {
     public:
         //==============================================================================
@@ -71,6 +74,7 @@ namespace yuzu
         bool canUnderstand(juce::InputStream&) override;
         juce::Image decodeImage(juce::InputStream&) override;
         bool writeImageToStream(const juce::Image& sourceImage, juce::OutputStream& destStream) override;
+        bool loadMetadataFromImage(juce::InputStream& is, juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
         bool lossless = true;
