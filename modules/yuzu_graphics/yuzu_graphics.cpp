@@ -16,4 +16,5 @@
 //==============================================================================
 #include "images/yuzu_Image.cpp"
 #include "images/yuzu_ImageFileFormat.cpp"
+#include "images/yuzu_ImageMetadata.cpp"
 #include "image_formats/yuzu_HEIFLoader.cpp"
