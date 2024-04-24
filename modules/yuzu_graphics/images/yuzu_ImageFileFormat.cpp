@@ -2,6 +2,10 @@
 
 namespace yuzu
 {
+    yuzu::ExtendedImageFileFormat::ExtendedImageFileFormat(juce::InputStream& is)
+    {
+        is.readIntoMemoryBlock(rawFileData, -1);
+    }
     std::unique_ptr<ExtendedImageFileFormat> yuzu::ExtendedImageFileFormat::findImageFormatForStream(juce::InputStream& input)
     {
         std::unique_ptr<ExtendedImageFileFormat> fmt;
@@ -14,6 +18,46 @@ namespace yuzu
         }
         
         input.setPosition(streamPos);
+        if (JPEGImageExtendedFormat::canUnderstand(input))
+        {
+            input.setPosition(streamPos);
+            fmt.reset(new JPEGImageExtendedFormat(input));
+            return fmt;
+        }
+
+        input.setPosition(streamPos);
+        if (PNGImageExtendedFormat::canUnderstand(input))
+        {
+            input.setPosition(streamPos);
+            fmt.reset(new PNGImageExtendedFormat(input));
+            return fmt;
+        }
+
+        input.setPosition(streamPos);
+        if (GIFImageExtendedFormat::canUnderstand(input))
+        {
+            input.setPosition(streamPos);
+            fmt.reset(new GIFImageExtendedFormat(input));
+            return fmt;
+        }
+
+        input.setPosition(streamPos);
+        if (BMPImageExtendedFormat::canUnderstand(input))
+        {
+            input.setPosition(streamPos);
+            fmt.reset(new BMPImageExtendedFormat(input));
+            return fmt;
+        }
+
+        input.setPosition(streamPos);
+        if (WEBPImageExtendedFormat::canUnderstand(input))
+        {
+            input.setPosition(streamPos);
+            fmt.reset(new WEBPImageExtendedFormat(input));
+            return fmt;
+        }
+
+       
         // format not identified
         jassertfalse;
         return fmt;

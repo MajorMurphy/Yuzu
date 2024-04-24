@@ -127,7 +127,7 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
                 }
                 else
                 {
-                    String extentions("*.jpg;*.jpeg;*.png;*.gif");
+                    String extentions("*.jpg;*.jpeg;*.png;*.gif;*.webp;*.bmp");
 #if YUZU_LINK_LIBHEIF || JUCE_USING_COREIMAGE_LOADER
                     extentions += ";*.heic;*.heif";
 #endif

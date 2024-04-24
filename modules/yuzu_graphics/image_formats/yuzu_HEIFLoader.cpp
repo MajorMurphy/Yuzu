@@ -9,10 +9,11 @@ using namespace yuzu;
 using namespace juce;
 
 
-yuzu::HEIFImageExtendedFormat::HEIFImageExtendedFormat(InputStream& is)
+yuzu::HEIFImageExtendedFormat::HEIFImageExtendedFormat(InputStream& is) : ExtendedImageFileFormat(is)
 {	
-#if YUZU_LINK_LIBHEIF
 	is.readIntoMemoryBlock(rawFileData, -1);
+#if YUZU_LINK_LIBHEIF
+
 	ctx = heif_context_alloc();
 	if (!ctx)
 	{

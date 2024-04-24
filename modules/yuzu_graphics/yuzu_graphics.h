@@ -19,7 +19,7 @@
   license:            GPL/Commercial
   minimumCppStandard: 17
 
-  dependencies:       juce_graphics gin_metadata
+  dependencies:       juce_graphics gin_metadata gin_webp
   OSXFrameworks:      
   iOSFrameworks:      
 
@@ -32,7 +32,9 @@
 #define YUZU_GRAPHICS_INCLUDED
 
 #include <juce_graphics/juce_graphics.h>
+#include <gin_graphics/gin_graphics.h>
 #include <gin_metadata/gin_metadata.h>
+#include <gin_webp/gin_webp.h>
 
 //==============================================================================
 /** Config: YUZU_LINK_LIBHEIF

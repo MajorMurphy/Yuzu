@@ -19,8 +19,17 @@ namespace yuzu
         {
             is.setPosition(0);
 
-            yuzu::HEIFImageExtendedFormat heif(is);
-            return heif.loadMetadataFromImage(metadata);
+            yuzu::HEIFImageExtendedFormat fmt(is);
+            return fmt.loadMetadataFromImage(metadata);
+        }
+
+        is.setPosition(0);
+        if (yuzu::JPEGImageExtendedFormat::canUnderstand(is))
+        {
+            is.setPosition(0);
+
+            yuzu::JPEGImageExtendedFormat fmt(is);
+            return fmt.loadMetadataFromImage(metadata);
         }
 
         return false;

@@ -18,3 +18,8 @@
 #include "images/yuzu_ImageFileFormat.cpp"
 #include "images/yuzu_ImageMetadata.cpp"
 #include "image_formats/yuzu_HEIFLoader.cpp"
+#include "image_formats/yuzu_JPEGLoader.cpp"
+#include "image_formats/yuzu_PNGLoader.cpp"
+#include "image_formats/yuzu_GIFLoader.cpp"
+#include "image_formats/yuzu_BMPLoader.cpp"
+#include "image_formats/yuzu_WEBPLoader.cpp"
