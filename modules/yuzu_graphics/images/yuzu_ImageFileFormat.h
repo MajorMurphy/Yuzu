@@ -1,56 +1,20 @@
 #pragma once
-
+#if YUZU_LINK_LIBHEIF
+#include <libheif/heif.h>
+#endif
 namespace yuzu
 {
 
-    class ImageFileFormat : public juce::ImageFileFormat
+    class ExtendedImageFileFormat
     {
     public: 
-        //==============================================================================
-        /** Tries the built-in formats to see if it can find one to read this stream.
-            There are currently built-in decoders for PNG, JPEG and GIF formats.
-            HEIC can be decoded if YUZU_LINK_LIBHEIF or JUCE_USING_COREIMAGE_LOADER
-            The object that is returned should not be deleted by the caller.
-            @see canUnderstand, decodeImage, loadFrom
-        */
-        static juce::ImageFileFormat* findImageFormatForStream(juce::InputStream& input);
+        ExtendedImageFileFormat() = default;
+        virtual ~ExtendedImageFileFormat() = default;
+        static std::unique_ptr<ExtendedImageFileFormat> findImageFormatForStream(juce::InputStream& input);
+        static std::unique_ptr<ExtendedImageFileFormat> findImageFormatForFile(juce::File input);
 
-        /** Looks for a format that can handle the given file extension.
-            There are currently built-in formats for PNG, JPEG and GIF formats.
-            The object that is returned should not be deleted by the caller.
-        */
-        static juce::ImageFileFormat* findImageFormatForFileExtension(const juce::File& file);
-
-        //==============================================================================
-        /** Tries to load an image from a stream.
-
-            This will use the findImageFormatForStream() method to locate a suitable
-            codec, and use that to load the image.
-
-            @returns        the image that was decoded, or an invalid image if it fails.
-        */
-        static juce::Image loadFrom(juce::InputStream& input);
-
-        /** Tries to load an image from a file.
-
-            This will use the findImageFormatForStream() method to locate a suitable
-            codec, and use that to load the image.
-
-            @returns        the image that was decoded, or an invalid image if it fails.
-        */
-        static juce::Image loadFrom(const juce::File& file);
-
-        /** Tries to load an image from a block of raw image data.
-
-            This will use the findImageFormatForStream() method to locate a suitable
-            codec, and use that to load the image.
-
-            @returns        the image that was decoded, or an invalid image if it fails.
-        */
-        static juce::Image loadFrom(const void* rawData,  size_t numBytesOfData);
-
-
-        virtual bool loadMetadataFromImage(juce::InputStream& is, juce::OwnedArray<gin::ImageMetadata>& metadata) = 0;
+        virtual juce::Image decodeImage() = 0;
+        virtual bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) = 0;
 
     };
 
@@ -62,22 +26,41 @@ namespace yuzu
 
     @tags{Graphics}
     */
-    class HEIFImageFormat : public yuzu::ImageFileFormat
+    class HEIFImageExtendedFormat : public yuzu::ExtendedImageFileFormat
     {
     public:
         //==============================================================================
-        HEIFImageFormat();
-        ~HEIFImageFormat() override;
+        HEIFImageExtendedFormat(juce::InputStream& image);
+
+        ~HEIFImageExtendedFormat() override;
         //==============================================================================
-        juce::String getFormatName() override;
-        bool usesFileExtension(const juce::File&) override;
-        bool canUnderstand(juce::InputStream&) override;
-        juce::Image decodeImage(juce::InputStream&) override;
-        bool writeImageToStream(const juce::Image& sourceImage, juce::OutputStream& destStream) override;
-        bool loadMetadataFromImage(juce::InputStream& is, juce::OwnedArray<gin::ImageMetadata>& metadata) override;
+        static juce::String getFormatName();
+        static bool usesFileExtension(const juce::File&);
+        static bool canUnderstand(juce::InputStream&);
+
+        juce::Image decodeImage() override;        
+        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
-        bool lossless = true;
-        float quality;
+        juce::MemoryBlock rawFileData;
+#if YUZU_LINK_LIBHEIF
+        heif_context* ctx = nullptr;
+        heif_image_handle* primaryImageHandle = nullptr;
+#endif
+
     };
+
+    class HEIFImageFormat : public juce::ImageFileFormat
+    {
+    public:
+        HEIFImageFormat();
+        ~HEIFImageFormat() override;
+
+        juce::String getFormatName() override;
+        bool usesFileExtension(const juce::File&) override;
+        bool canUnderstand(juce::InputStream&)  override;
+        juce::Image decodeImage(juce::InputStream&) override;
+        bool writeImageToStream(const juce::Image& sourceImage, juce::OutputStream& destStream) override;
+    };
+
 }

@@ -1,8 +1,6 @@
 #include "../images/yuzu_ImageFileFormat.h"
 
-#if YUZU_LINK_LIBHEIF && !JUCE_USING_COREIMAGE_LOADER
-#include <libheif/heif.h>
-#endif
+
 
 JUCE_BEGIN_IGNORE_WARNINGS_MSVC(4100)
 
@@ -10,26 +8,47 @@ JUCE_BEGIN_IGNORE_WARNINGS_MSVC(4100)
 using namespace yuzu;
 using namespace juce;
 
-yuzu::HEIFImageFormat::HEIFImageFormat()
-{
 
+yuzu::HEIFImageExtendedFormat::HEIFImageExtendedFormat(InputStream& is)
+{	
+#if YUZU_LINK_LIBHEIF
+	is.readIntoMemoryBlock(rawFileData, -1);
+	ctx = heif_context_alloc();
+	if (!ctx)
+	{
+		jassertfalse;
+		return;
+	}
+	heif_context_read_from_memory_without_copy(ctx, rawFileData.getData(), rawFileData.getSize(), nullptr);
+	heif_context_get_primary_image_handle(ctx, &primaryImageHandle);
+	if (!primaryImageHandle)
+	{
+		jassertfalse;
+		return;
+	}
+#endif
 }
 
-yuzu::HEIFImageFormat::~HEIFImageFormat()
+yuzu::HEIFImageExtendedFormat::~HEIFImageExtendedFormat()
 {
+	// clean up resources
+	if(primaryImageHandle)
+		heif_image_handle_release(primaryImageHandle);
+	if(ctx)
+		heif_context_free(ctx);
 }
 
-juce::String yuzu::HEIFImageFormat::getFormatName()
+juce::String yuzu::HEIFImageExtendedFormat::getFormatName()
 {
 	return "High Efficiency Image File Format (HEIF)";
 }
 
-bool yuzu::HEIFImageFormat::usesFileExtension(const File& file)
+bool yuzu::HEIFImageExtendedFormat::usesFileExtension(const File& file)
 {
 	return file.hasFileExtension("heif;heic");
 }
 
-bool yuzu::HEIFImageFormat::canUnderstand([[maybe_unused]] InputStream& in)
+bool yuzu::HEIFImageExtendedFormat::canUnderstand([[maybe_unused]] InputStream& in)
 {
 #if YUZU_LINK_LIBHEIF || JUCE_USING_COREIMAGE_LOADER
 	in.readByte();
@@ -59,29 +78,30 @@ inline void ABGRtoARGB(juce::uint32* x)
 Image juce_loadWithCoreImage(InputStream&);
 #endif
 
-juce::Image yuzu::HEIFImageFormat::decodeImage(juce::InputStream& in)
+juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 {
 #if JUCE_USING_COREIMAGE_LOADER
 	return juce_loadWithCoreImage(in);
 #elif YUZU_LINK_LIBHEIF
-	juce::Image decodedImage;
-	juce::MemoryBlock encodedImageData;
-	in.readIntoMemoryBlock(encodedImageData, -1);
+	if (!primaryImageHandle)
+	{
+		jassertfalse;
+		return Image();
+	}
 
-	heif_context* ctx = heif_context_alloc();
-	heif_context_read_from_memory_without_copy(ctx, encodedImageData.getData(), encodedImageData.getSize(), nullptr);
+	auto width = heif_image_handle_get_width(primaryImageHandle);
+	auto height = heif_image_handle_get_height(primaryImageHandle);
+	auto hasAlpha = heif_image_handle_has_alpha_channel(primaryImageHandle);
 
-	// get a handle to the primary image
-	heif_image_handle* handle = nullptr;
-	heif_context_get_primary_image_handle(ctx, &handle);
-
-	auto width = heif_image_handle_get_width(handle);
-	auto height = heif_image_handle_get_height(handle);
-	auto hasAlpha = heif_image_handle_has_alpha_channel(handle);
+	if (width <= 0 || height <= 0)
+	{
+		jassertfalse;
+		return Image();
+	}
 
 	// decode the image and convert colorspace to RGB, saved as 24bit interleaved
 	heif_image* encodedImage = nullptr;
-	heif_decode_image(handle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
+	heif_decode_image(primaryImageHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
 	if (!encodedImage)
 	{
 		jassertfalse;
@@ -96,7 +116,7 @@ juce::Image yuzu::HEIFImageFormat::decodeImage(juce::InputStream& in)
 		return Image();
 	}
 
-	decodedImage = Image(hasAlpha ? Image::ARGB : Image::RGB, width, height, false);
+	auto decodedImage = Image(hasAlpha ? Image::ARGB : Image::RGB, width, height, false);
 	Image::BitmapData bmp(decodedImage, Image::BitmapData::writeOnly);
 	for (int y = 0; y < height; y++)
 	{
@@ -128,8 +148,7 @@ juce::Image yuzu::HEIFImageFormat::decodeImage(juce::InputStream& in)
 
 	// clean up resources
 	heif_image_release(encodedImage);
-	heif_image_handle_release(handle);
-	heif_context_free(ctx);
+
 	return decodedImage;
 #else 
 	jassertfalse;
@@ -138,34 +157,18 @@ juce::Image yuzu::HEIFImageFormat::decodeImage(juce::InputStream& in)
 
 }
 
-bool yuzu::HEIFImageFormat::writeImageToStream(const Image&, OutputStream&)
-{
-	// not yet implemented
-	jassertfalse;
-	return false;
-}
 
-bool yuzu::HEIFImageFormat::loadMetadataFromImage(juce::InputStream& in, juce::OwnedArray<gin::ImageMetadata>& metadata)
+bool yuzu::HEIFImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata)
 {
 #if YUZU_LINK_LIBHEIF
 
-	juce::MemoryBlock encodedImageData;
-	in.readIntoMemoryBlock(encodedImageData, -1);
-
-	heif_context* ctx = heif_context_alloc();
-	heif_context_read_from_memory_without_copy(ctx, encodedImageData.getData(), encodedImageData.getSize(), nullptr);
-
-	// get a handle to the primary image
-	heif_image_handle* handle = nullptr;
-	heif_context_get_primary_image_handle(ctx, &handle);
-
 	heif_item_id exif_id;
 
-	int n = heif_image_handle_get_list_of_metadata_block_IDs(handle, "Exif", &exif_id, 1);
+	int n = heif_image_handle_get_list_of_metadata_block_IDs(primaryImageHandle, "Exif", &exif_id, 1);
 	if (n == 1) {
-		size_t exifSize = heif_image_handle_get_metadata_size(handle, exif_id);
+		size_t exifSize = heif_image_handle_get_metadata_size(primaryImageHandle, exif_id);
 		uint8_t* exifData = (uint8_t*)malloc(exifSize);
-		struct heif_error error = heif_image_handle_get_metadata(handle, exif_id, exifData);
+		struct heif_error error = heif_image_handle_get_metadata(primaryImageHandle, exif_id, exifData);
 
 		auto md = gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4);
 		if (md)
@@ -173,16 +176,47 @@ bool yuzu::HEIFImageFormat::loadMetadataFromImage(juce::InputStream& in, juce::O
 		free(exifData);
 	}
 
-
-	// clean up resources
-	heif_image_handle_release(handle);
-	heif_context_free(ctx);
-
 	return metadata.size() > 0;
 #else
 	jassertfalse;
 	return false;
 #endif
+}
+
+yuzu::HEIFImageFormat::HEIFImageFormat()
+{
+}
+
+yuzu::HEIFImageFormat::~HEIFImageFormat()
+{
+}
+
+juce::String yuzu::HEIFImageFormat::getFormatName()
+{
+	return HEIFImageExtendedFormat::getFormatName();
+}
+
+bool yuzu::HEIFImageFormat::usesFileExtension(const juce::File& file)
+{
+	return HEIFImageExtendedFormat::usesFileExtension(file);
+}
+
+bool yuzu::HEIFImageFormat::canUnderstand(juce::InputStream& is)
+{
+	return HEIFImageExtendedFormat::canUnderstand(is);
+}
+
+juce::Image yuzu::HEIFImageFormat::decodeImage(juce::InputStream& is)
+{
+	HEIFImageExtendedFormat fmt(is);
+	return fmt.decodeImage();
+}
+
+bool yuzu::HEIFImageFormat::writeImageToStream(const Image&, OutputStream&)
+{
+	// not yet implemented
+	jassertfalse;
+	return false;
 }
 
 

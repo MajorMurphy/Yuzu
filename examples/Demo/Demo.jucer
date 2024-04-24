@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="fBZP78" name="Yuzu Demo" projectType="guiapp" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
+              cppLanguageStandard="20">
   <MAINGROUP id="oOybwt" name="Yuzu Demo">
     <GROUP id="{1002F31E-A79A-CD43-B71C-99F2F839FA9D}" name="Source">
       <FILE id="yr46j4" name="DemoComponent.cpp" compile="1" resource="0"
@@ -11,13 +12,16 @@
     </GROUP>
   </MAINGROUP>
   <MODULES>
+    <MODULE id="gin" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="gin_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="gin_metadata" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="yuzu_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
-    <MODULE id="yuzu_gui" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="yuzu_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="yuzu_gui" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" YUZU_LINK_LIBHEIF="1"/>
   <EXPORTFORMATS>
@@ -32,8 +36,11 @@
         <MODULEPATH id="juce_events" path="../../../JUCE/modules"/>
         <MODULEPATH id="juce_graphics" path="../../../JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="../../../JUCE/modules"/>
-        <MODULEPATH id="yuzu_gui" path="../../modules"/>
+        <MODULEPATH id="gin_graphics" path="../../../Gin/modules"/>
+        <MODULEPATH id="gin" path="../../../Gin/modules"/>
+        <MODULEPATH id="gin_metadata" path="../../../Gin/modules"/>
         <MODULEPATH id="yuzu_graphics" path="../../modules"/>
+        <MODULEPATH id="yuzu_gui" path="../../modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

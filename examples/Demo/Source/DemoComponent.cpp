@@ -138,8 +138,17 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
 
                     ptr->chooser->launchAsync(folderChooserFlags, [ptr](const FileChooser& chooser) 
                     {
-                        if (chooser.getResult().existsAsFile())
-                            ptr->setImage(yuzu::ImageFileFormat::loadFrom(chooser.getResult()));
+                            if (chooser.getResult().existsAsFile())
+                            {
+                                auto fmt = ExtendedImageFileFormat::findImageFormatForFile(chooser.getResult());
+                                if(fmt)
+                                    ptr->setImage(fmt->decodeImage());
+                                else
+                                {
+                                    jassertfalse;
+                                    ptr->setImage(Image());
+                                }
+                            }
                     });
                     
                 }

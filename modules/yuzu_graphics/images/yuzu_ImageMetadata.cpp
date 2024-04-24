@@ -14,14 +14,13 @@ namespace yuzu
             return true;
 
 
-        yuzu::HEIFImageFormat heif;
-
         is.setPosition(0);
-        if (heif.canUnderstand(is))
+        if (yuzu::HEIFImageExtendedFormat::canUnderstand(is))
         {
             is.setPosition(0);
-            
-            return heif.loadMetadataFromImage(is, metadata);
+
+            yuzu::HEIFImageExtendedFormat heif(is);
+            return heif.loadMetadataFromImage(metadata);
         }
 
         return false;

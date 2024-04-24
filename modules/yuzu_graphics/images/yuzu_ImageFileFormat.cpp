@@ -2,88 +2,34 @@
 
 namespace yuzu
 {
-    struct DefaultImageFormats
+    std::unique_ptr<ExtendedImageFileFormat> yuzu::ExtendedImageFileFormat::findImageFormatForStream(juce::InputStream& input)
     {
-        static juce::ImageFileFormat** get()
+        std::unique_ptr<ExtendedImageFileFormat> fmt;
+        const auto streamPos = input.getPosition();
+        if (HEIFImageExtendedFormat::canUnderstand(input))
         {
-            static DefaultImageFormats formats;
-            return formats.formats;
-        }
-
-    private:
-        DefaultImageFormats() noexcept
-        {
-            formats[0] = &png;
-            formats[1] = &jpg;
-            formats[2] = &gif;
-            formats[3] = &heif;
-            formats[4] = nullptr;
-        }
-
-        juce::PNGImageFormat  png;
-        juce::JPEGImageFormat jpg;
-        juce::GIFImageFormat  gif;
-        yuzu::HEIFImageFormat heif;
-
-        juce::ImageFileFormat* formats[5];
-    };
-
-
-    juce::ImageFileFormat* yuzu::ImageFileFormat::findImageFormatForStream(juce::InputStream& input)
-    {
-        const juce::int64 streamPos = input.getPosition();
-
-        for (juce::ImageFileFormat** i = yuzu::DefaultImageFormats::get(); *i != nullptr; ++i)
-        {
-            const bool found = (*i)->canUnderstand(input);
             input.setPosition(streamPos);
-
-            if (found)
-                return *i;
+            fmt.reset(new HEIFImageExtendedFormat(input));
+            return fmt;
         }
-
-        return nullptr;
+        
+        input.setPosition(streamPos);
+        // format not identified
+        jassertfalse;
+        return fmt;
     }
 
-    juce::ImageFileFormat* yuzu::ImageFileFormat::findImageFormatForFileExtension(const juce::File& file)
+    std::unique_ptr<ExtendedImageFileFormat> ExtendedImageFileFormat::findImageFormatForFile(juce::File input)
     {
-        for (juce::ImageFileFormat** i = yuzu::DefaultImageFormats::get(); *i != nullptr; ++i)
-            if ((*i)->usesFileExtension(file))
-                return *i;
-
-        return nullptr;
-    }
-
-    //==============================================================================
-    juce::Image yuzu::ImageFileFormat::loadFrom(juce::InputStream& input)
-    {
-        if (juce::ImageFileFormat* format = findImageFormatForStream(input))
-            return format->decodeImage(input);
-
-        return juce::Image();
-    }
-
-    juce::Image yuzu::ImageFileFormat::loadFrom(const juce::File& file)
-    {
-        juce::FileInputStream stream(file);
+        juce::FileInputStream stream(input);
 
         if (stream.openedOk())
         {
             juce::BufferedInputStream b(stream, 8192);
-            return loadFrom(b);
+            return findImageFormatForStream(b);
         }
-
-        return juce::Image();
+        return nullptr;
     }
 
-    juce::Image yuzu::ImageFileFormat::loadFrom(const void* rawData, const size_t numBytes)
-    {
-        if (rawData != nullptr && numBytes > 4)
-        {
-            juce::MemoryInputStream stream(rawData, numBytes, false);
-            return loadFrom(stream);
-        }
 
-        return juce::Image();
-    }
 }
