@@ -20,8 +20,20 @@ yuzu::HEIFImageExtendedFormat::HEIFImageExtendedFormat(InputStream& is) : Extend
 		jassertfalse;
 		return;
 	}
-	heif_context_read_from_memory_without_copy(ctx, rawFileData.getData(), rawFileData.getSize(), nullptr);
-	heif_context_get_primary_image_handle(ctx, &primaryImageHandle);
+	auto error = heif_context_read_from_memory_without_copy(ctx, rawFileData.getData(), rawFileData.getSize(), nullptr);
+	if (error.code != heif_error_code::heif_error_Ok)
+	{
+		DBG("Heif read error: " + String(error.message));
+		jassertfalse;
+		return;
+	}
+	error = heif_context_get_primary_image_handle(ctx, &primaryImageHandle);
+	if (error.code != heif_error_code::heif_error_Ok)
+	{
+		DBG("Heif read error: " + String(error.message));
+		jassertfalse;
+		return;
+	}
 	if (!primaryImageHandle)
 	{
 		jassertfalse;
@@ -32,11 +44,15 @@ yuzu::HEIFImageExtendedFormat::HEIFImageExtendedFormat(InputStream& is) : Extend
 
 yuzu::HEIFImageExtendedFormat::~HEIFImageExtendedFormat()
 {
+#if YUZU_LINK_LIBHEIF
 	// clean up resources
 	if(primaryImageHandle)
 		heif_image_handle_release(primaryImageHandle);
+	if(primaryThumbHandle)
+		heif_image_handle_release(primaryThumbHandle);
 	if(ctx)
 		heif_context_free(ctx);
+#endif
 }
 
 juce::String yuzu::HEIFImageExtendedFormat::getFormatName()
@@ -61,7 +77,6 @@ bool yuzu::HEIFImageExtendedFormat::canUnderstand([[maybe_unused]] InputStream& 
 	uint32 heic = in.readInt();
 	return heic == 6515045 && ftpy == 1752201588; 
 #else
-	jassertfalse;
 	return false;
 #endif
 }
@@ -156,6 +171,93 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 	return Image();
 #endif
 
+}
+
+juce::Image yuzu::HEIFImageExtendedFormat::decodeThumbnail()
+{
+	juce::Image decodedImage;
+
+#if YUZU_LINK_LIBHEIF
+	if (!primaryImageHandle || !ctx)
+		return decodedImage;
+
+	if (!primaryThumbHandle)
+	{
+		heif_item_id thumbnail_ID;
+		int nThumbnails = heif_image_handle_get_list_of_thumbnail_IDs(primaryImageHandle, &thumbnail_ID, 1);
+		if (nThumbnails > 0) {
+			struct heif_image_handle* thumbnail_handle;
+			auto err = heif_image_handle_get_thumbnail(primaryImageHandle, thumbnail_ID, &thumbnail_handle);
+			if (err.code)
+			{
+				DBG("Could not read HEIF thumbnail : " << err.message << "\n");
+				return juce::Image();
+			}
+			primaryThumbHandle = thumbnail_handle;
+		}
+
+	}
+	if (!primaryThumbHandle)
+	{
+		return decodedImage;
+	}
+
+	auto width = heif_image_handle_get_width(primaryThumbHandle);
+	auto height = heif_image_handle_get_height(primaryThumbHandle);
+	auto hasAlpha = heif_image_handle_has_alpha_channel(primaryThumbHandle);
+
+	// decode the image and convert colorspace to RGB, saved as 24bit interleaved
+	heif_image* encodedImage = nullptr;
+	heif_decode_image(primaryThumbHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
+	if (!encodedImage)
+	{
+		jassertfalse;
+		return Image();
+	}
+
+	int stride = 0;
+	const uint8_t* decodedData = heif_image_get_plane_readonly(encodedImage, heif_channel_interleaved, &stride);
+	if (stride <= 0)
+	{
+		jassertfalse;
+		return Image();
+	}
+
+	decodedImage = Image(hasAlpha ? Image::ARGB : Image::RGB, width, height, false);
+	Image::BitmapData bmp(decodedImage, Image::BitmapData::writeOnly);
+	for (int y = 0; y < height; y++)
+	{
+		auto linePtr = decodedData + (y * stride);
+		if (hasAlpha)
+		{
+			if (bmp.lineStride == stride)
+			{
+				memcpy(bmp.getLinePointer(y), linePtr, stride);
+				for (int x = 0; x < width; x++)
+				{
+					ABGRtoARGB((uint32*)bmp.getPixelPointer(x, y));
+				}
+			}
+			else jassertfalse;
+		}
+		else
+		{
+			for (int x = 0; x < width; x++)
+			{
+				auto dest = bmp.getPixelPointer(x, y);
+				auto src = linePtr + x * 3;
+				dest[0] = src[2];
+				dest[1] = src[1];
+				dest[2] = src[0];
+			}
+		}
+	}
+
+	// clean up resources
+	heif_image_release(encodedImage);
+
+#endif
+	return decodedImage;
 }
 
 

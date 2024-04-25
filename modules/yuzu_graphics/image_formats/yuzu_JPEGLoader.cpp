@@ -38,6 +38,25 @@ juce::Image yuzu::JPEGImageExtendedFormat::decodeImage()
 	return fmt.decodeImage(s);
 }
 
+juce::Image yuzu::JPEGImageExtendedFormat::decodeThumbnail()
+{
+	juce::OwnedArray<gin::ImageMetadata> md;
+	loadMetadataFromImage(md);
+	for (auto entry : md)
+	{
+		// find EXIF metadata
+		if (entry->getType().equalsIgnoreCase("exif"))
+		{
+			auto exif = (gin::ExifMetadata*)entry;
+			return exif->getThumbnailImage();
+		}
+
+	}
+
+	// no thumbnail found in EXIF
+	return juce::Image();
+}
+
 bool yuzu::JPEGImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata)
 {
 	MemoryInputStream s(rawFileData, false);

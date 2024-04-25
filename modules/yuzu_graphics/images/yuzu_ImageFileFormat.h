@@ -15,7 +15,9 @@ namespace yuzu
         static std::unique_ptr<ExtendedImageFileFormat> findImageFormatForFile(juce::File input);
 
         virtual juce::Image decodeImage() = 0;
+        virtual juce::Image decodeThumbnail() { return juce::Image(); }
         virtual bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) = 0;
+        
     protected:
         juce::MemoryBlock rawFileData;
     };
@@ -114,6 +116,7 @@ namespace yuzu
         static bool canUnderstand(juce::InputStream&);
 
         juce::Image decodeImage() override;
+        juce::Image decodeThumbnail() override;
         bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
@@ -133,7 +136,8 @@ namespace yuzu
         static bool usesFileExtension(const juce::File&);
         static bool canUnderstand(juce::InputStream&);
 
-        juce::Image decodeImage() override;        
+        juce::Image decodeImage() override;
+        juce::Image decodeThumbnail() override;
         bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
@@ -141,6 +145,7 @@ namespace yuzu
 #if YUZU_LINK_LIBHEIF
         heif_context* ctx = nullptr;
         heif_image_handle* primaryImageHandle = nullptr;
+        heif_image_handle* primaryThumbHandle = nullptr;
 #endif
         JUCE_LEAK_DETECTOR(HEIFImageExtendedFormat)
     };

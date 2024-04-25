@@ -63,7 +63,7 @@ DemoComponent::DemoComponent ()
     addAndMakeVisible (thumbnailPreview.get());
     thumbnailPreview->setName ("thumbnail");
 
-    thumbnailPreview->setBounds (712, 8, 182, 120);
+    thumbnailPreview->setBounds (120, 8, 182, 120);
 
     metadataText.reset (new juce::TextEditor ("metadata"));
     addAndMakeVisible (metadataText.get());
@@ -75,7 +75,7 @@ DemoComponent::DemoComponent ()
     metadataText->setPopupMenuEnabled (true);
     metadataText->setText (juce::String());
 
-    metadataText->setBounds (112, 8, 590, 112);
+    metadataText->setBounds (312, 8, 566, 112);
 
 
     //[UserPreSize]
@@ -199,7 +199,7 @@ void DemoComponent::setImage(juce::File imgFile)
     {
         juce::OwnedArray<gin::ImageMetadata> md;
         fmt->loadMetadataFromImage(md);
-        reload(fmt->decodeImage(), ImageMetadata::getAsString(md), Image());
+        reload(fmt->decodeImage(), ImageMetadata::getAsString(md), fmt->decodeThumbnail());
     }
     else
     {
@@ -242,10 +242,10 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="8 88 94 24" buttonText="Paste"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <GENERICCOMPONENT name="thumbnail" id="29e9dcfea34f1bba" memberName="thumbnailPreview"
-                    virtualName="" explicitFocusOrder="0" pos="712 8 182 120" class="juce::ImageComponent"
+                    virtualName="" explicitFocusOrder="0" pos="120 8 182 120" class="juce::ImageComponent"
                     params=""/>
   <TEXTEDITOR name="metadata" id="5bdef0c0aaac48d6" memberName="metadataText"
-              virtualName="" explicitFocusOrder="0" pos="112 8 590 112" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="312 8 566 112" initialText=""
               multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="1"
               caret="0" popupmenu="1"/>
 </JUCER_COMPONENT>
