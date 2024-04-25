@@ -63,8 +63,6 @@ DemoComponent::DemoComponent ()
     addAndMakeVisible (thumbnailPreview.get());
     thumbnailPreview->setName ("thumbnail");
 
-    thumbnailPreview->setBounds (120, 8, 182, 120);
-
     metadataText.reset (new juce::TextEditor ("metadata"));
     addAndMakeVisible (metadataText.get());
     metadataText->setMultiLine (true);
@@ -75,7 +73,23 @@ DemoComponent::DemoComponent ()
     metadataText->setPopupMenuEnabled (true);
     metadataText->setText (juce::String());
 
-    metadataText->setBounds (312, 8, 566, 112);
+    imageResolution.reset (new juce::Label ("image resolution",
+                                            TRANS ("Primary Image: 1000 x 1000")));
+    addAndMakeVisible (imageResolution.get());
+    imageResolution->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    imageResolution->setJustificationType (juce::Justification::centredLeft);
+    imageResolution->setEditable (false, false, false);
+    imageResolution->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    imageResolution->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    thumbnailResolution.reset (new juce::Label ("thumbnail resolution",
+                                                TRANS ("Thumbnail: 100 x 100")));
+    addAndMakeVisible (thumbnailResolution.get());
+    thumbnailResolution->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    thumbnailResolution->setJustificationType (juce::Justification::centredLeft);
+    thumbnailResolution->setEditable (false, false, false);
+    thumbnailResolution->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    thumbnailResolution->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -85,6 +99,7 @@ DemoComponent::DemoComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
+    reload(juce::Image(), juce::String(), juce::Image());
     //[/Constructor]
 }
 
@@ -99,6 +114,8 @@ DemoComponent::~DemoComponent()
     pasteImageButton = nullptr;
     thumbnailPreview = nullptr;
     metadataText = nullptr;
+    imageResolution = nullptr;
+    thumbnailResolution = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -122,7 +139,11 @@ void DemoComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    imagePreview->setBounds (0, 136, getWidth() - 0, getHeight() - 140);
+    imagePreview->setBounds (0, 160, getWidth() - 0, getHeight() - 164);
+    thumbnailPreview->setBounds (getWidth() - 8 - 206, 32, 206, 120 - 0);
+    metadataText->setBounds (120, 32, getWidth() - 343, 120);
+    imageResolution->setBounds (120 + 0, 32 + -7 - 24, (getWidth() - 343) - 0, 24);
+    thumbnailResolution->setBounds ((getWidth() - 8 - 206) + 0, 32 + -7 - 24, 206 - 0, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -211,6 +232,8 @@ void DemoComponent::reload(juce::Image img, juce::String metadata, juce::Image t
     imagePreview->setImage(img);
     metadataText->setText(metadata);
     thumbnailPreview->setImage(thumbnail);
+    imageResolution->setText("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()), dontSendNotification);
+    thumbnailResolution->setText("Thumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()), dontSendNotification);
 }
 //[/MiscUserCode]
 
@@ -230,7 +253,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff323e44"/>
   <GENERICCOMPONENT name="image preview" id="bf43439ea64874c4" memberName="imagePreview"
-                    virtualName="" explicitFocusOrder="0" pos="0 136 0M 140M" class="juce::ImageComponent"
+                    virtualName="" explicitFocusOrder="0" pos="0 160 0M 164M" class="juce::ImageComponent"
                     params=""/>
   <TEXTBUTTON name="open image button" id="e4a534ade34f0d32" memberName="openImageButton"
               virtualName="" explicitFocusOrder="0" pos="8 8 94 24" buttonText="Open"
@@ -242,12 +265,26 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="8 88 94 24" buttonText="Paste"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <GENERICCOMPONENT name="thumbnail" id="29e9dcfea34f1bba" memberName="thumbnailPreview"
-                    virtualName="" explicitFocusOrder="0" pos="120 8 182 120" class="juce::ImageComponent"
-                    params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="8Rr 32 206 0M" posRelativeH="5bdef0c0aaac48d6"
+                    class="juce::ImageComponent" params=""/>
   <TEXTEDITOR name="metadata" id="5bdef0c0aaac48d6" memberName="metadataText"
-              virtualName="" explicitFocusOrder="0" pos="312 8 566 112" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="120 32 343M 120" initialText=""
               multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="1"
               caret="0" popupmenu="1"/>
+  <LABEL name="image resolution" id="cede6fd8be4655d1" memberName="imageResolution"
+         virtualName="" explicitFocusOrder="0" pos="0 -7r 0M 24" posRelativeX="5bdef0c0aaac48d6"
+         posRelativeY="5bdef0c0aaac48d6" posRelativeW="5bdef0c0aaac48d6"
+         edTextCol="ff000000" edBkgCol="0" labelText="Primary Image: 1000 x 1000"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
+  <LABEL name="thumbnail resolution" id="693cdf52278efb48" memberName="thumbnailResolution"
+         virtualName="" explicitFocusOrder="0" pos="0 -7r 0M 24" posRelativeX="29e9dcfea34f1bba"
+         posRelativeY="29e9dcfea34f1bba" posRelativeW="29e9dcfea34f1bba"
+         posRelativeH="29e9dcfea34f1bba" edTextCol="ff000000" edBkgCol="0"
+         labelText="Thumbnail: 100 x 100" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

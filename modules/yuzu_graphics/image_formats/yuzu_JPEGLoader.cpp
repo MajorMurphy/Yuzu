@@ -6,8 +6,7 @@ using namespace juce;
 
 
 JPEGImageExtendedFormat::JPEGImageExtendedFormat(juce::InputStream& is) : ExtendedImageFileFormat(is)
-{
-	
+{	
 }
 
 yuzu::JPEGImageExtendedFormat::~JPEGImageExtendedFormat()

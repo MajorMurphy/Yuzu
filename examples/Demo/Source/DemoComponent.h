@@ -66,6 +66,8 @@ private:
     std::unique_ptr<juce::TextButton> pasteImageButton;
     std::unique_ptr<juce::ImageComponent> thumbnailPreview;
     std::unique_ptr<juce::TextEditor> metadataText;
+    std::unique_ptr<juce::Label> imageResolution;
+    std::unique_ptr<juce::Label> thumbnailResolution;
 
 
     //==============================================================================
