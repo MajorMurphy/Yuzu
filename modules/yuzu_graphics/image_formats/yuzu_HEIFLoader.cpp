@@ -286,6 +286,41 @@ bool yuzu::HEIFImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::
 #endif
 }
 
+juce::uint32 yuzu::HEIFImageExtendedFormat::getMotionPhotoSize()
+{
+	if (hasCheckedForMotionPhoto)
+		return videoSize;
+
+	videoPosition = 0;
+	videoSize = 0;
+	uint32 position = 0;
+
+	const int signatureSize = sizeof(SAMSUNG_MOTIONPHOTO_SIGNATURE_V2);
+	char candidate[signatureSize] = { 0 };
+	for (auto i = rawFileData.getSize() - signatureSize-1; i > 0; i--)
+	{
+		rawFileData.copyTo(candidate, i, signatureSize);
+		if (0 == strcmp(candidate, SAMSUNG_MOTIONPHOTO_SIGNATURE_V2))
+		{
+			position = i + signatureSize - 1;
+			break;
+		}
+	}
+	if (position == 0)
+		return videoSize;
+
+	if (position + sizeof(position) + sizeof(videoSize) < rawFileData.getSize())
+	{
+		rawFileData.copyTo(&videoPosition, position, sizeof(videoPosition));
+		rawFileData.copyTo(&videoSize, position + sizeof(videoPosition), sizeof(videoSize));
+	}
+	videoPosition = ByteOrder::swap(videoPosition);
+	videoSize = ByteOrder::swap(videoSize);
+
+	hasCheckedForMotionPhoto = true;
+	return videoSize;
+}
+
 yuzu::HEIFImageFormat::HEIFImageFormat()
 {
 }

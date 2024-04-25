@@ -91,6 +91,21 @@ DemoComponent::DemoComponent ()
     thumbnailResolution->setColour (juce::TextEditor::textColourId, juce::Colours::black);
     thumbnailResolution->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
+    motionPhotoLabel.reset (new juce::Label ("new label",
+                                             TRANS ("Motion Photo: False\n"
+                                             "Size: 0 ")));
+    addAndMakeVisible (motionPhotoLabel.get());
+    motionPhotoLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    motionPhotoLabel->setJustificationType (juce::Justification::topLeft);
+    motionPhotoLabel->setEditable (false, false, false);
+    motionPhotoLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    motionPhotoLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    exportMotionPhoto.reset (new juce::TextButton ("export motion photo button"));
+    addAndMakeVisible (exportMotionPhoto.get());
+    exportMotionPhoto->setButtonText (TRANS ("Export MP4"));
+    exportMotionPhoto->addListener (this);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -99,7 +114,7 @@ DemoComponent::DemoComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    reload(juce::Image(), juce::String(), juce::Image());
+    reload(juce::Image(), juce::String(), juce::Image(), 0);
     //[/Constructor]
 }
 
@@ -116,6 +131,8 @@ DemoComponent::~DemoComponent()
     metadataText = nullptr;
     imageResolution = nullptr;
     thumbnailResolution = nullptr;
+    motionPhotoLabel = nullptr;
+    exportMotionPhoto = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -140,10 +157,12 @@ void DemoComponent::resized()
     //[/UserPreResize]
 
     imagePreview->setBounds (0, 160, getWidth() - 0, getHeight() - 164);
-    thumbnailPreview->setBounds (getWidth() - 8 - 206, 32, 206, 120 - 0);
-    metadataText->setBounds (120, 32, getWidth() - 343, 120);
-    imageResolution->setBounds (120 + 0, 32 + -7 - 24, (getWidth() - 343) - 0, 24);
-    thumbnailResolution->setBounds ((getWidth() - 8 - 206) + 0, 32 + -7 - 24, 206 - 0, 24);
+    thumbnailPreview->setBounds ((getWidth() - 7 - 141) + -5 - 206, 32, 206, 120 - 0);
+    metadataText->setBounds (118, 32, getWidth() - 493, 120);
+    imageResolution->setBounds (118 + 0, 32 + -7 - 24, (getWidth() - 493) - 0, 24);
+    thumbnailResolution->setBounds (((getWidth() - 7 - 141) + -5 - 206) + 0, 32 + -7 - 24, 206 - 0, 24);
+    motionPhotoLabel->setBounds (getWidth() - 7 - 141, 8, 141, 56);
+    exportMotionPhoto->setBounds ((getWidth() - 7 - 141) + 11, 80, 118, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -201,6 +220,48 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
         setImage(yuzu::SystemClipboard::getImageFromClipboard());
         //[/UserButtonCode_pasteImageButton]
     }
+    else if (buttonThatWasClicked == exportMotionPhoto.get())
+    {
+        //[UserButtonCode_exportMotionPhoto] -- add your button handler code here..
+            // check permissions
+        RuntimePermissions::request(RuntimePermissions::writeExternalStorage,
+            [this](bool /* wasGranted */)
+            {
+
+                auto suggestedFileName = File::getSpecialLocation(File::userMoviesDirectory).getNonexistentChildFile("MotionPhoto", ".mp4", true);
+
+                chooser = std::make_unique<juce::FileChooser>("Export Motion Photo",
+                    suggestedFileName,
+                    "*.mp4");
+
+                auto folderChooserFlags = FileBrowserComponent::warnAboutOverwriting | FileBrowserComponent::canSelectFiles | FileBrowserComponent::saveMode;
+
+                chooser->launchAsync(folderChooserFlags, [this](const FileChooser& chooser)
+                    {
+                        auto file = chooser.getResult();
+                        if (file == File())
+                            // user canceled
+                            return;
+
+                        if (!file.hasFileExtension("mp4"))
+                            file = file.withFileExtension(".mp4");
+
+                        file.deleteFile();
+
+                        auto os = file.createOutputStream();
+                        if (os->openedOk() && fmt)
+                        {
+                            fmt->extractVideo(*os);
+                            if(file.existsAsFile())
+                                file.revealToUser();
+                        }
+
+                        
+                    });
+
+            });
+        //[/UserButtonCode_exportMotionPhoto]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -211,29 +272,32 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void DemoComponent::setImage(juce::Image img)
 {
-    reload(img, juce::String(), juce::Image());
+    fmt = nullptr;
+    reload(img, juce::String(), juce::Image(), 0);
 }
 void DemoComponent::setImage(juce::File imgFile)
 {
-    auto fmt = ExtendedImageFileFormat::findImageFormatForFile(imgFile);
+    fmt = ExtendedImageFileFormat::findImageFormatForFile(imgFile);
     if (fmt)
     {
         juce::OwnedArray<gin::ImageMetadata> md;
         fmt->loadMetadataFromImage(md);
-        reload(fmt->decodeImage(), ImageMetadata::getAsString(md), fmt->decodeThumbnail());
+        reload(fmt->decodeImage(), ImageMetadata::getAsString(md), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
     }
     else
     {
         jassertfalse;
     }
 }
-void DemoComponent::reload(juce::Image img, juce::String metadata, juce::Image thumbnail)
+void DemoComponent::reload(juce::Image img, juce::String metadata, juce::Image thumbnail, int motionPhotoSize)
 {
     imagePreview->setImage(img);
     metadataText->setText(metadata);
     thumbnailPreview->setImage(thumbnail);
     imageResolution->setText("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()), dontSendNotification);
     thumbnailResolution->setText("Thumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()), dontSendNotification);
+    motionPhotoLabel->setText("Motion Photo: " + String(motionPhotoSize) + " bytes", dontSendNotification);
+    exportMotionPhoto->setEnabled(motionPhotoSize > 0);
 }
 //[/MiscUserCode]
 
@@ -265,10 +329,11 @@ BEGIN_JUCER_METADATA
               virtualName="" explicitFocusOrder="0" pos="8 88 94 24" buttonText="Paste"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <GENERICCOMPONENT name="thumbnail" id="29e9dcfea34f1bba" memberName="thumbnailPreview"
-                    virtualName="" explicitFocusOrder="0" pos="8Rr 32 206 0M" posRelativeH="5bdef0c0aaac48d6"
-                    class="juce::ImageComponent" params=""/>
+                    virtualName="" explicitFocusOrder="0" pos="-5r 32 206 0M" posRelativeX="a2b93263c4c6d7dd"
+                    posRelativeH="5bdef0c0aaac48d6" class="juce::ImageComponent"
+                    params=""/>
   <TEXTEDITOR name="metadata" id="5bdef0c0aaac48d6" memberName="metadataText"
-              virtualName="" explicitFocusOrder="0" pos="120 32 343M 120" initialText=""
+              virtualName="" explicitFocusOrder="0" pos="118 32 493M 120" initialText=""
               multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="1"
               caret="0" popupmenu="1"/>
   <LABEL name="image resolution" id="cede6fd8be4655d1" memberName="imageResolution"
@@ -285,6 +350,15 @@ BEGIN_JUCER_METADATA
          labelText="Thumbnail: 100 x 100" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
          kerning="0.0" bold="0" italic="0" justification="33"/>
+  <LABEL name="new label" id="a2b93263c4c6d7dd" memberName="motionPhotoLabel"
+         virtualName="" explicitFocusOrder="0" pos="7Rr 8 141 56" edTextCol="ff000000"
+         edBkgCol="0" labelText="Motion Photo: False&#10;Size: 0 " editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="9"/>
+  <TEXTBUTTON name="export motion photo button" id="9f941111d70e6849" memberName="exportMotionPhoto"
+              virtualName="" explicitFocusOrder="0" pos="11 80 118 24" posRelativeX="a2b93263c4c6d7dd"
+              buttonText="Export MP4" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

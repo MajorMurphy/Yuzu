@@ -45,7 +45,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setImage(juce::Image img);
     void setImage(juce::File imgFile);
-    void reload(juce::Image img, juce::String metadata, juce::Image thumbnail);
+    void reload(juce::Image img, juce::String metadata, juce::Image thumbnail, int motionPhotoSize);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -57,6 +57,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     std::unique_ptr<juce::FileChooser> chooser;
+    std::unique_ptr<yuzu::ExtendedImageFileFormat> fmt;
     //[/UserVariables]
 
     //==============================================================================
@@ -68,6 +69,8 @@ private:
     std::unique_ptr<juce::TextEditor> metadataText;
     std::unique_ptr<juce::Label> imageResolution;
     std::unique_ptr<juce::Label> thumbnailResolution;
+    std::unique_ptr<juce::Label> motionPhotoLabel;
+    std::unique_ptr<juce::TextButton> exportMotionPhoto;
 
 
     //==============================================================================

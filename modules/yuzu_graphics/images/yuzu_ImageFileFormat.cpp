@@ -75,5 +75,32 @@ namespace yuzu
         return nullptr;
     }
 
+    bool ExtendedImageFileFormat::extractVideo(juce::OutputStream& os)
+    {
+        if (!hasCheckedForMotionPhoto)
+            getMotionPhotoSize();
+
+        if (videoSize <= 0)
+        {
+            return false;
+        }
+        if (videoPosition < 0 || videoPosition + videoSize > rawFileData.getSize())
+        {
+            jassertfalse;
+            return false;
+        }
+
+        juce::MemoryInputStream dataStream(rawFileData,false);
+        dataStream.setPosition(videoPosition);
+        
+        if (!os.writeFromInputStream(dataStream, videoSize))
+        {
+            DBG("Failed to write video data to output stream");
+            jassertfalse;
+            return false;
+        }
+        return true;
+    }
+
 
 }

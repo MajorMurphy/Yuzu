@@ -61,3 +61,40 @@ bool yuzu::JPEGImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::
 	MemoryInputStream s(rawFileData, false);
 	return gin::ImageMetadata::getFromImage(s, metadata);
 }
+
+
+juce::uint32 yuzu::JPEGImageExtendedFormat::getMotionPhotoSize()
+{
+	if (hasCheckedForMotionPhoto)
+		return videoSize;
+
+	videoSize = 0;
+	videoPosition = 0;
+
+	const int signatureSize = sizeof(SAMSUNG_MOTIONPHOTO_SIGNATURE_V1);
+	char candidate[signatureSize];
+	for (uint32 i = 0; i < rawFileData.getSize() - signatureSize; i++)
+	{
+		rawFileData.copyTo(candidate, i, signatureSize);
+		if (0 == strcmp(candidate, SAMSUNG_MOTIONPHOTO_SIGNATURE_V1))
+		{
+			videoPosition = i + signatureSize - 1;
+			videoSize = (uint32)(rawFileData.getSize() - videoPosition - 1);
+
+			hasCheckedForMotionPhoto = true;
+			return videoSize;
+		}
+		if (0 == strcmp(candidate, GOOGLE_MOTIONPHOTO_SIGNATURE_V2) ||
+			0 == strcmp(candidate, GOOGLE_MOTIONPHOTO_SIGNATURE_V1))
+		{
+			videoPosition = i - 3;
+			videoSize = (uint32)(rawFileData.getSize() - videoPosition);
+
+			hasCheckedForMotionPhoto = true;
+			return videoSize;
+		}
+	}
+
+	hasCheckedForMotionPhoto = true;
+	return videoSize;
+}
