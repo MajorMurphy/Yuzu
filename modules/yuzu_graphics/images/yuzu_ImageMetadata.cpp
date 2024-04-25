@@ -35,4 +35,23 @@ namespace yuzu
         return false;
     }
 
+    juce::String ImageMetadata::getAsString(juce::OwnedArray<gin::ImageMetadata>& metadata)
+    {
+        juce::String mdString;
+        for (auto m : metadata)
+        {
+            auto pairs = m->getAllMetadata();
+            auto keys = pairs.getAllKeys();
+            auto values = pairs.getAllValues();
+            if (keys.size() == values.size())
+            {
+                for (int i=0;i< keys.size();i++)
+                {
+                    mdString += keys[i] + ":  " + values[i] + "\n";
+                }
+            }
+        }
+        return mdString;
+    }
+
 }

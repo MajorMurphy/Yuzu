@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.12
+  Created with Projucer version: 7.0.11
 
   ------------------------------------------------------------------------------
 
@@ -44,6 +44,8 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setImage(juce::Image img);
+    void setImage(juce::File imgFile);
+    void reload(juce::Image img, juce::String metadata, juce::Image thumbnail);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -62,6 +64,8 @@ private:
     std::unique_ptr<juce::TextButton> openImageButton;
     std::unique_ptr<juce::TextButton> copyImageButton;
     std::unique_ptr<juce::TextButton> pasteImageButton;
+    std::unique_ptr<juce::ImageComponent> thumbnailPreview;
+    std::unique_ptr<juce::TextEditor> metadataText;
 
 
     //==============================================================================

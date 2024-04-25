@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.12
+  Created with Projucer version: 7.0.11
 
   ------------------------------------------------------------------------------
 
@@ -59,6 +59,24 @@ DemoComponent::DemoComponent ()
 
     pasteImageButton->setBounds (8, 88, 94, 24);
 
+    thumbnailPreview.reset (new juce::ImageComponent());
+    addAndMakeVisible (thumbnailPreview.get());
+    thumbnailPreview->setName ("thumbnail");
+
+    thumbnailPreview->setBounds (712, 8, 182, 120);
+
+    metadataText.reset (new juce::TextEditor ("metadata"));
+    addAndMakeVisible (metadataText.get());
+    metadataText->setMultiLine (true);
+    metadataText->setReturnKeyStartsNewLine (false);
+    metadataText->setReadOnly (true);
+    metadataText->setScrollbarsShown (true);
+    metadataText->setCaretVisible (false);
+    metadataText->setPopupMenuEnabled (true);
+    metadataText->setText (juce::String());
+
+    metadataText->setBounds (112, 8, 590, 112);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -79,6 +97,8 @@ DemoComponent::~DemoComponent()
     openImageButton = nullptr;
     copyImageButton = nullptr;
     pasteImageButton = nullptr;
+    thumbnailPreview = nullptr;
+    metadataText = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -102,7 +122,7 @@ void DemoComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    imagePreview->setBounds (0, 0, getWidth() - 0, getHeight() - 4);
+    imagePreview->setBounds (0, 136, getWidth() - 0, getHeight() - 140);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -136,21 +156,14 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
                         extentions, true);
                     auto folderChooserFlags = FileBrowserComponent::openMode | FileBrowserComponent::FileChooserFlags::canSelectFiles;
 
-                    ptr->chooser->launchAsync(folderChooserFlags, [ptr](const FileChooser& chooser) 
+                    ptr->chooser->launchAsync(folderChooserFlags, [ptr](const FileChooser& chooser)
                     {
                             if (chooser.getResult().existsAsFile())
                             {
-                                auto fmt = ExtendedImageFileFormat::findImageFormatForFile(chooser.getResult());
-                                if(fmt)
-                                    ptr->setImage(fmt->decodeImage());
-                                else
-                                {
-                                    jassertfalse;
-                                    ptr->setImage(Image());
-                                }
+                                ptr->setImage(chooser.getResult());
                             }
                     });
-                    
+
                 }
             });
         //[/UserButtonCode_openImageButton]
@@ -164,7 +177,7 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == pasteImageButton.get())
     {
         //[UserButtonCode_pasteImageButton] -- add your button handler code here..
-        imagePreview->setImage(yuzu::SystemClipboard::getImageFromClipboard());
+        setImage(yuzu::SystemClipboard::getImageFromClipboard());
         //[/UserButtonCode_pasteImageButton]
     }
 
@@ -177,7 +190,27 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void DemoComponent::setImage(juce::Image img)
 {
+    reload(img, juce::String(), juce::Image());
+}
+void DemoComponent::setImage(juce::File imgFile)
+{
+    auto fmt = ExtendedImageFileFormat::findImageFormatForFile(imgFile);
+    if (fmt)
+    {
+        juce::OwnedArray<gin::ImageMetadata> md;
+        fmt->loadMetadataFromImage(md);
+        reload(fmt->decodeImage(), ImageMetadata::getAsString(md), Image());
+    }
+    else
+    {
+        jassertfalse;
+    }
+}
+void DemoComponent::reload(juce::Image img, juce::String metadata, juce::Image thumbnail)
+{
     imagePreview->setImage(img);
+    metadataText->setText(metadata);
+    thumbnailPreview->setImage(thumbnail);
 }
 //[/MiscUserCode]
 
@@ -197,7 +230,7 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ff323e44"/>
   <GENERICCOMPONENT name="image preview" id="bf43439ea64874c4" memberName="imagePreview"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 0M 4M" class="juce::ImageComponent"
+                    virtualName="" explicitFocusOrder="0" pos="0 136 0M 140M" class="juce::ImageComponent"
                     params=""/>
   <TEXTBUTTON name="open image button" id="e4a534ade34f0d32" memberName="openImageButton"
               virtualName="" explicitFocusOrder="0" pos="8 8 94 24" buttonText="Open"
@@ -208,6 +241,13 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="paste image button" id="4f9326e9c2294d2b" memberName="pasteImageButton"
               virtualName="" explicitFocusOrder="0" pos="8 88 94 24" buttonText="Paste"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <GENERICCOMPONENT name="thumbnail" id="29e9dcfea34f1bba" memberName="thumbnailPreview"
+                    virtualName="" explicitFocusOrder="0" pos="712 8 182 120" class="juce::ImageComponent"
+                    params=""/>
+  <TEXTEDITOR name="metadata" id="5bdef0c0aaac48d6" memberName="metadataText"
+              virtualName="" explicitFocusOrder="0" pos="112 8 590 112" initialText=""
+              multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="1"
+              caret="0" popupmenu="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
