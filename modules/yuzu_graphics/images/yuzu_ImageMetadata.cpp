@@ -10,29 +10,10 @@ namespace yuzu
 
 	bool yuzu::ImageMetadata::getFromImage(juce::InputStream& is, juce::OwnedArray<gin::ImageMetadata>& metadata)
 	{
-        if (gin::ImageMetadata::getFromImage(is, metadata))
-            return true;
-
-
+        auto fmt = ExtendedImageFileFormat::findImageFormatForStream(is);
         is.setPosition(0);
-        if (yuzu::HEIFImageExtendedFormat::canUnderstand(is))
-        {
-            is.setPosition(0);
 
-            yuzu::HEIFImageExtendedFormat fmt(is);
-            return fmt.loadMetadataFromImage(metadata);
-        }
-
-        is.setPosition(0);
-        if (yuzu::JPEGImageExtendedFormat::canUnderstand(is))
-        {
-            is.setPosition(0);
-
-            yuzu::JPEGImageExtendedFormat fmt(is);
-            return fmt.loadMetadataFromImage(metadata);
-        }
-
-        return false;
+       return fmt->loadMetadataFromImage(metadata);
     }
 
     juce::String ImageMetadata::getAsString(juce::OwnedArray<gin::ImageMetadata>& metadata)
