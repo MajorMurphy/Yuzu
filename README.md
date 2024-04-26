@@ -2,10 +2,10 @@
 Image-Format Modules for JUCE
 
 ## Features
-* Open HEIC files via libheif and libde265
-* Load EXIF metadata for HEIC and JPEG files
-* Extract and decode embedded thumbnail images
-* Extract embedded motion-photos as MP4
+* Load HEIC files via libheif and libde265
+* Load EXIF metadata for JPEG/HEIC
+* Extract and decode embedded thumbnail images from JPEG/HEIC
+* Extract embedded motion-photos as MP4 from JPEG/HEIC
 * Copy/paste image to clipboard (Windows-only for now)
 
 ## Requirements
