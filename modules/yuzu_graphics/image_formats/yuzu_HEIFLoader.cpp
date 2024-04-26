@@ -67,7 +67,7 @@ bool yuzu::HEIFImageExtendedFormat::usesFileExtension(const File& file)
 
 bool yuzu::HEIFImageExtendedFormat::canUnderstand([[maybe_unused]] InputStream& in)
 {
-#if YUZU_LINK_LIBHEIF || JUCE_USING_COREIMAGE_LOADER
+#if YUZU_LINK_LIBHEIF
 	in.readByte();
 	in.readByte();
 	in.readByte();
@@ -90,15 +90,10 @@ inline void ABGRtoARGB(juce::uint32* x)
 	// Return:  0xAARRGGBB
 }
 
-#if JUCE_USING_COREIMAGE_LOADER
-Image juce_loadWithCoreImage(InputStream&);
-#endif
 
 juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 {
-#if JUCE_USING_COREIMAGE_LOADER
-	return juce_loadWithCoreImage(in);
-#elif YUZU_LINK_LIBHEIF
+#if YUZU_LINK_LIBHEIF
 	if (!primaryImageHandle)
 	{
 		jassertfalse;
@@ -117,9 +112,10 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 
 	// decode the image and convert colorspace to RGB, saved as 24bit interleaved
 	heif_image* encodedImage = nullptr;
-	heif_decode_image(primaryImageHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
-	if (!encodedImage)
+	auto error = heif_decode_image(primaryImageHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
+	if (!encodedImage || error.code != heif_error_Ok)
 	{
+        DBG("libheif decode error: " + String(error.message));
 		jassertfalse;
 		return Image();
 	}
@@ -208,12 +204,13 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeThumbnail()
 
 	// decode the image and convert colorspace to RGB, saved as 24bit interleaved
 	heif_image* encodedImage = nullptr;
-	heif_decode_image(primaryThumbHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
-	if (!encodedImage)
-	{
-		jassertfalse;
-		return Image();
-	}
+	auto error = heif_decode_image(primaryThumbHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
+    if (!encodedImage || error.code != heif_error_Ok)
+    {
+        DBG("libheif decode error: " + String(error.message));
+        jassertfalse;
+        return Image();
+    }
 
 	int stride = 0;
 	const uint8_t* decodedData = heif_image_get_plane_readonly(encodedImage, heif_channel_interleaved, &stride);
@@ -271,12 +268,25 @@ bool yuzu::HEIFImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::
 	if (n == 1) {
 		size_t exifSize = heif_image_handle_get_metadata_size(primaryImageHandle, exif_id);
 		uint8_t* exifData = (uint8_t*)malloc(exifSize);
-		struct heif_error error = heif_image_handle_get_metadata(primaryImageHandle, exif_id, exifData);
-
-		auto md = gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4);
-		if (md)
-			metadata.add(md);
-		free(exifData);
+        if(!exifData)
+        {
+            DBG("memory allocation error");
+            jassertfalse;
+            return false;
+        }
+		auto error = heif_image_handle_get_metadata(primaryImageHandle, exif_id, exifData);
+        if (error.code != heif_error_Ok)
+        {
+            DBG("libheif getmetadata error: " + String(error.message));
+            jassertfalse;
+        }
+        else
+        {
+            auto md = gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4);
+            if (md)
+                metadata.add(md);
+        }
+        free(exifData);
 	}
 
 	return metadata.size() > 0;

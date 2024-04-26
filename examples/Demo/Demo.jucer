@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="fBZP78" name="Yuzu Demo" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              cppLanguageStandard="20">
+              cppLanguageStandard="20" bundleIdentifier="cam.phomo.YuzuDemo">
   <MAINGROUP id="oOybwt" name="Yuzu Demo">
     <GROUP id="{1002F31E-A79A-CD43-B71C-99F2F839FA9D}" name="Source">
       <FILE id="yr46j4" name="DemoComponent.cpp" compile="1" resource="0"
@@ -45,13 +45,14 @@
         <MODULEPATH id="gin_webp" path="../../../Gin/modules"/>
       </MODULEPATHS>
     </VS2022>
-    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="heif" postbuildCommand="#!/bin/sh&#10;&#10;GIT_ROOT=&quot;${PROJECT_DIR}/../../../../..&quot;&#10;FRAMEWORKS_FULL_PATH=&quot;${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}&quot;&#10;&#10;mkdir -p &quot;${FRAMEWORKS_FULL_PATH}&quot;&#10;&#10;cp -R -L &quot;${GIT_ROOT}/libheif/build/libheif/libheif.1.dylib&quot; &quot;${FRAMEWORKS_FULL_PATH}&quot;&#10;"
+    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="heif&#10;de265"
+               postbuildCommand="#!/bin/sh&#10;&#10;GIT_ROOT=&quot;${PROJECT_DIR}/../../../../..&quot;&#10;FRAMEWORKS_FULL_PATH=&quot;${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}&quot;&#10;&#10;mkdir -p &quot;${FRAMEWORKS_FULL_PATH}&quot;&#10;&#10;cp -R -L &quot;${GIT_ROOT}/libheif/build/libheif/libheif.1.dylib&quot; &quot;${FRAMEWORKS_FULL_PATH}&quot;&#10;cp -R -L &quot;${GIT_ROOT}/libde265/build/libde265/libde265.dylib&quot; &quot;${FRAMEWORKS_FULL_PATH}&quot;"
                extraLinkerFlags=" -rpath @executable_path/../Frameworks/">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../../../../libheif"
-                       libraryPath="../../../../../libheif/build/libheif"/>
-        <CONFIGURATION isDebug="0" name="Release" libraryPath="../../../../../libheif/build/libheif"
-                       headerPath="../../../../../libheif"/>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../../../../libheif&#10;../../../../../libde265"
+                       libraryPath="../../../../../libheif/build/libheif&#10;../../../../../libde265/build/libde265"/>
+        <CONFIGURATION isDebug="0" name="Release" libraryPath="../../../../../libheif/build/libheif&#10;../../../../../libde265/build/libde265"
+                       headerPath="../../../../../libheif&#10;../../../../../libde265"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="gin" path="../../../Gin/modules"/>
