@@ -1,0 +1,21 @@
+# Yuzu
+Image-Format Modules for JUCE
+
+## Features
+* Open HEIC files via libheif and libde265
+* Load EXIF metadata for HEIC and JPEG files
+* Extract and decode embedded thumbnail images
+* Extract embedded motion-photos as MP4
+* Copy/paste image to clipboard (Windows-only for now)
+
+## Requirements
+* [JUCE](https://github.com/juce-framework/JUCE)
+* [Gin](https://github.com/FigBug/Gin)
+* [libheif](https://github.com/strukturag/libheif)
+* [libde265](https://github.com/strukturag/libde265)
+
+## Notes
+* YUZU_LINK_LIBRARY=0 to disable libheif and libde265
+
+## Copyright
+(c) 2024 Major Murphy
