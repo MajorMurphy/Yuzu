@@ -19,7 +19,7 @@
   license:            GPL/Commercial
   minimumCppStandard: 17
 
-  dependencies:       juce_graphics gin_metadata gin_webp
+  dependencies:       juce_graphics gin_graphics gin_metadata gin_webp
   OSXFrameworks:      
   iOSFrameworks:      
 

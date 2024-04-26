@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.11
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
@@ -92,8 +92,7 @@ DemoComponent::DemoComponent ()
     thumbnailResolution->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
     motionPhotoLabel.reset (new juce::Label ("new label",
-                                             TRANS ("Motion Photo: False\n"
-                                             "Size: 0 ")));
+                                             TRANS ("Motion Photo: 0 b")));
     addAndMakeVisible (motionPhotoLabel.get());
     motionPhotoLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     motionPhotoLabel->setJustificationType (juce::Justification::topLeft);
@@ -256,7 +255,7 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
                                 file.revealToUser();
                         }
 
-                        
+
                     });
 
             });
@@ -296,7 +295,7 @@ void DemoComponent::reload(juce::Image img, juce::String metadata, juce::Image t
     thumbnailPreview->setImage(thumbnail);
     imageResolution->setText("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()), dontSendNotification);
     thumbnailResolution->setText("Thumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()), dontSendNotification);
-    motionPhotoLabel->setText("Motion Photo: " + String(motionPhotoSize) + " bytes", dontSendNotification);
+    motionPhotoLabel->setText("Motion Photo: " + String(motionPhotoSize) + " b", dontSendNotification);
     exportMotionPhoto->setEnabled(motionPhotoSize > 0);
 }
 //[/MiscUserCode]
@@ -352,7 +351,7 @@ BEGIN_JUCER_METADATA
          kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="a2b93263c4c6d7dd" memberName="motionPhotoLabel"
          virtualName="" explicitFocusOrder="0" pos="7Rr 8 141 56" edTextCol="ff000000"
-         edBkgCol="0" labelText="Motion Photo: False&#10;Size: 0 " editableSingleClick="0"
+         edBkgCol="0" labelText="Motion Photo: 0 b" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="9"/>
   <TEXTBUTTON name="export motion photo button" id="9f941111d70e6849" memberName="exportMotionPhoto"
