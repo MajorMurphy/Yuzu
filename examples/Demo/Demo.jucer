@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="fBZP78" name="Yuzu Demo" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              cppLanguageStandard="20" bundleIdentifier="cam.phomo.YuzuDemo">
+              cppLanguageStandard="20" bundleIdentifier="cam.phomo.YuzuDemo"
+              companyCopyright="Major Murphy" companyWebsite="www.phomo.cam">
   <MAINGROUP id="oOybwt" name="Yuzu Demo">
     <GROUP id="{1002F31E-A79A-CD43-B71C-99F2F839FA9D}" name="Source">
       <FILE id="yr46j4" name="DemoComponent.cpp" compile="1" resource="0"

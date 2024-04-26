@@ -1,4 +1,4 @@
-
+// Copyright (c) 2024 Major Murphy
 
 #ifdef YUZU_GRAPHICS_INCLUDED
  /* When you add this cpp file to your project, you mustn't include it in a file where you've

@@ -1,3 +1,5 @@
+// Copyright (c) 2024 Major Murphy
+
 #pragma once
 #if YUZU_LINK_LIBHEIF
 #include <libheif/heif.h>

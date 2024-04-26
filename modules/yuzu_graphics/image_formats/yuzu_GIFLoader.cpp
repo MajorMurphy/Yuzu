@@ -1,3 +1,5 @@
+// Copyright (c) 2024 Major Murphy
+
 #include "../images/yuzu_ImageFileFormat.h"
 
 

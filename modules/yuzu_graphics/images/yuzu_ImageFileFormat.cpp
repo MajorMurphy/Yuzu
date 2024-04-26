@@ -1,3 +1,5 @@
+// Copyright (c) 2024 Major Murphy
+
 #include "yuzu_ImageFileFormat.h"
 
 namespace yuzu

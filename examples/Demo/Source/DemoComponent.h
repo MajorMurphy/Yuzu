@@ -20,6 +20,9 @@
 #pragma once
 
 //[Headers]     -- You can add your own extra header files here --
+
+// Copyright (c) 2024 Major Murphy
+
 #include <JuceHeader.h>
 //[/Headers]
 
