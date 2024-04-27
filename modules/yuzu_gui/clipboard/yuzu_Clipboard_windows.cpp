@@ -87,14 +87,6 @@ Image yuzu::SystemClipboard::getImageFromClipboard()
 
 void yuzu::SystemClipboard::copyImageToClipboard(Image image)
 {
-    if (!IsClipboardFormatAvailable(CF_DIB))
-    {
-        jassertfalse;
-        auto error = GetLastError();
-        DBG("CF_DIB clipboard format not available. Error: " + String(error));
-        return;
-    }
-
     if (!OpenClipboard(NULL))
     {
         jassertfalse;
@@ -118,16 +110,20 @@ void yuzu::SystemClipboard::copyImageToClipboard(Image image)
 
 
     auto totalSize = sizeof(BITMAPINFOHEADER) + header.biSizeImage;
-    auto handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_SHARE, totalSize);
+    auto handle = GlobalAlloc(GMEM_MOVEABLE, totalSize);
     if (!handle)
     {
         jassertfalse;
+        CloseClipboard();
         return;
     }
     auto cbData = GlobalLock(handle);
     if (!cbData)
     {
         jassertfalse;
+        if (handle)
+            GlobalFree(handle);
+        CloseClipboard();
         return;
     }
 
@@ -137,14 +133,14 @@ void yuzu::SystemClipboard::copyImageToClipboard(Image image)
     jassert(bmp.lineStride == stride);
 
     auto currentLine = (void*)((int64)cbData + (sizeof(header)));
-    for (int y = 0; y < image.getHeight(); y++)
+    for (int y = image.getHeight() - 1; y >= 0; y--)
     {
         // assemble bitmap bottom-up, line by line
-        memcpy_s(currentLine, stride, bmp.getLinePointer(image.getHeight() - 1 - y), bmp.lineStride);
+        memcpy_s(currentLine, stride, bmp.getLinePointer(y), bmp.lineStride);
         currentLine = (void*)((int64)currentLine + stride);
     }
 
-
+    GlobalUnlock(handle);
     EmptyClipboard();
     if (!SetClipboardData(CF_DIB, handle))
     {
@@ -152,6 +148,10 @@ void yuzu::SystemClipboard::copyImageToClipboard(Image image)
         DBG("SetClipboardData error: " + String(GetLastError()));
     }
     CloseClipboard();
+
+    if (handle)
+        GlobalFree(handle);
+
     return;
 
 }
