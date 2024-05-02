@@ -309,7 +309,7 @@ juce::uint32 yuzu::HEIFImageExtendedFormat::getMotionPhotoSize()
 
 	const int signatureSize = sizeof(SAMSUNG_MOTIONPHOTO_SIGNATURE_V2);
 	char candidate[signatureSize] = { 0 };
-	for (auto i = rawFileData.getSize() - signatureSize-1; i > 0; i--)
+	for (auto i = (int)rawFileData.getSize() - signatureSize-1; i > 0; i--)
 	{
 		rawFileData.copyTo(candidate, i, signatureSize);
 		if (0 == strcmp(candidate, SAMSUNG_MOTIONPHOTO_SIGNATURE_V2))
