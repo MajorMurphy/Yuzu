@@ -105,7 +105,11 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 	auto width = heif_image_handle_get_width(primaryImageHandle);
 	auto height = heif_image_handle_get_height(primaryImageHandle);
 	auto hasAlpha = heif_image_handle_has_alpha_channel(primaryImageHandle);
-
+#if JUCE_MAC
+    hasAlpha = true;
+#endif
+    
+    
 	if (width <= 0 || height <= 0)
 	{
 		jassertfalse;
@@ -114,8 +118,15 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 
 	// decode the image and convert colorspace to RGB, saved as 24bit interleaved
 	heif_image* encodedImage = nullptr;
-	auto error = heif_decode_image(primaryImageHandle, &encodedImage, heif_colorspace_RGB, hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB, nullptr);
-	if (!encodedImage || error.code != heif_error_Ok)
+
+	auto error = heif_decode_image(primaryImageHandle, 
+                                   &encodedImage,
+                                   heif_colorspace_RGB,
+                                   hasAlpha ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB,
+                                   nullptr);
+
+    
+    if (!encodedImage || error.code != heif_error_Ok)
 	{
         DBG("libheif decode error: " + String(error.message));
 		jassertfalse;
