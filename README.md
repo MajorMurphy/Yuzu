@@ -15,7 +15,7 @@ Image-Format Modules for JUCE
 * [libde265](https://github.com/strukturag/libde265)
 
 ## Notes
-* YUZU_LINK_LIBRARY=0 to disable libheif and libde265
+* YUZU_LINK_LIBHEIF=0 to disable libheif and libde265
 
 ## Demo
 Use [Projucer](https://github.com/juce-framework/JUCE/tree/master/extras/Projucer/Builds) to export [Demo.jucer](https://github.com/MajorMurphy/Yuzu/blob/53550426ac632eac7598eaf1da5a0556a352db39/examples/Demo/Demo.jucer) to Visual Studio or Xcode
