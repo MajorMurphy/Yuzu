@@ -77,6 +77,23 @@ namespace yuzu
         return nullptr;
     }
 
+    juce::Image yuzu::ExtendedImageFileFormat::decodeThumbnail()
+    {
+        if (loadMetadata())
+        {
+            return exif->getThumbnailImage();
+        }
+
+        return juce::Image();
+    }
+
+    juce::StringPairArray ExtendedImageFileFormat::getMetadata()
+    {        
+        if (loadMetadata())
+            return exif->getAllMetadata();
+        else return juce::StringPairArray();
+    }
+
     bool ExtendedImageFileFormat::extractVideo(juce::OutputStream& os)
     {
         if (!hasCheckedForMotionPhoto)
@@ -102,6 +119,55 @@ namespace yuzu
             return false;
         }
         return true;
+    }
+
+    ExtendedImageFileFormat::Orientation ExtendedImageFileFormat::getOriginalOrientation()
+    {
+        if (loadMetadata())
+        {
+            auto value = getMetadata().getValue("Orientation", "");
+            if (value.isNotEmpty())
+            {
+                if (value.equalsIgnoreCase("1") || value.equalsIgnoreCase("0"))
+                    return Orientation::portrait;
+                else if (value.equalsIgnoreCase("6"))
+                    return Orientation::landscape90;
+                else if (value.equalsIgnoreCase("8"))
+                    return Orientation::landscape270;
+                else if (value.equalsIgnoreCase("3"))
+                    return Orientation::inverted;
+                else
+                    jassertfalse;
+            }
+        }
+
+        return Orientation::portrait;
+    }
+
+    bool ExtendedImageFileFormat::loadMetadata()
+    {
+        if (hasCheckedForMetadata)
+            return exif != nullptr;
+
+        juce::OwnedArray<gin::ImageMetadata> allMetadata;
+
+        juce::MemoryInputStream s(rawFileData, false);
+        if (gin::ImageMetadata::getFromImage(s, allMetadata))
+        {
+            for (auto md : allMetadata)
+            {
+                if (md->getType().equalsIgnoreCase("exif"))
+                {
+                    allMetadata.remove(allMetadata.indexOf(md), false);
+                    exif.reset((gin::ExifMetadata*)md);
+                    hasCheckedForMetadata = true;
+                    return true;
+                }
+            }
+        }
+
+        hasCheckedForMetadata = true;
+        return false;
     }
 
 

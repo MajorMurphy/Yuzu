@@ -40,7 +40,3 @@ juce::Image yuzu::BMPImageExtendedFormat::decodeImage()
 	return fmt.decodeImage(s);
 }
 
-bool yuzu::BMPImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>&)
-{
-	return false;
-}

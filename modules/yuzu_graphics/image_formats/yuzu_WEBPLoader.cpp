@@ -40,8 +40,3 @@ juce::Image yuzu::WEBPImageExtendedFormat::decodeImage()
 	MemoryInputStream s(rawFileData, false);
 	return fmt.decodeImage(s);
 }
-
-bool yuzu::WEBPImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>&)
-{
-	return false;
-}

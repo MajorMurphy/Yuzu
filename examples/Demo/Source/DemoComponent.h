@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.12
+  Created with Projucer version: 8.0.0
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2020 - Raw Material Software Limited.
+  Copyright (c) - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -48,7 +48,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setImage(juce::Image img);
     void setImage(juce::File imgFile);
-    void reload(juce::Image img, juce::String metadata, juce::Image thumbnail, int motionPhotoSize);
+    void reload(juce::Image img, juce::StringPairArray metadata, juce::Image thumbnail, int motionPhotoSize);
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

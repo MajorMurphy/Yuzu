@@ -32,17 +32,30 @@ namespace yuzu
         static std::unique_ptr<ExtendedImageFileFormat> findImageFormatForFile(juce::File input);
 
         virtual juce::Image decodeImage() = 0;
-        virtual juce::Image decodeThumbnail() { return juce::Image(); }
-        virtual bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) = 0;
+        virtual juce::Image decodeThumbnail();
+        virtual juce::StringPairArray getMetadata();
 
         virtual juce::uint32 getMotionPhotoSize() { return 0; }
         bool extractVideo(juce::OutputStream& os);
         
+        enum Orientation
+        {
+            portrait,
+            landscape90,
+            landscape270,
+            inverted
+        };
+        Orientation getOriginalOrientation();
+
     protected:
         juce::MemoryBlock rawFileData;
         juce::uint32 videoPosition = 0;
         juce::uint32 videoSize = 0;
+
+        virtual bool loadMetadata();
+        std::unique_ptr<gin::ExifMetadata> exif;
         bool hasCheckedForMotionPhoto = false;
+        bool hasCheckedForMetadata = false;
     };
 
     class PNGImageExtendedFormat : public yuzu::ExtendedImageFileFormat
@@ -58,7 +71,6 @@ namespace yuzu
         static bool canUnderstand(juce::InputStream&);
 
         juce::Image decodeImage() override;
-        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
         juce::PNGImageFormat fmt;
@@ -79,7 +91,6 @@ namespace yuzu
         static bool canUnderstand(juce::InputStream&);
 
         juce::Image decodeImage() override;
-        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
         gin::WEBPImageFormat fmt;
@@ -99,7 +110,6 @@ namespace yuzu
         static bool canUnderstand(juce::InputStream&);
 
         juce::Image decodeImage() override;
-        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
         gin::BMPImageFormat fmt;
@@ -119,7 +129,6 @@ namespace yuzu
         static bool canUnderstand(juce::InputStream&);
 
         juce::Image decodeImage() override;
-        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
 
     private:
         juce::GIFImageFormat fmt;
@@ -139,8 +148,6 @@ namespace yuzu
         static bool canUnderstand(juce::InputStream&);
 
         juce::Image decodeImage() override;
-        juce::Image decodeThumbnail() override;
-        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
         juce::uint32 getMotionPhotoSize() override;
 
     private:
@@ -162,10 +169,11 @@ namespace yuzu
 
         juce::Image decodeImage() override;
         juce::Image decodeThumbnail() override;
-        bool loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata) override;
+
         juce::uint32 getMotionPhotoSize() override;
 
     private:
+        bool loadMetadata() override;
 #if YUZU_LINK_LIBHEIF
         heif_context* ctx = nullptr;
         heif_image_handle* primaryImageHandle = nullptr;

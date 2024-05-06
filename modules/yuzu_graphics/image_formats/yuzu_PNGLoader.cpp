@@ -42,8 +42,3 @@ juce::Image yuzu::PNGImageExtendedFormat::decodeImage()
 	return fmt.decodeImage(s);
 }
 
-bool yuzu::PNGImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata)
-{
-	MemoryInputStream s(rawFileData, false);
-	return gin::ImageMetadata::getFromImage(s, metadata);
-}

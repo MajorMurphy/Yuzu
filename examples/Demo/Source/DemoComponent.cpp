@@ -7,12 +7,12 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Projucer version: 7.0.12
+  Created with Projucer version: 8.0.0
 
   ------------------------------------------------------------------------------
 
   The Projucer is part of the JUCE library.
-  Copyright (c) 2020 - Raw Material Software Limited.
+  Copyright (c) - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -116,7 +116,7 @@ DemoComponent::DemoComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    reload(juce::Image(), juce::String(), juce::Image(), 0);
+    reload(juce::Image(), juce::StringPairArray(), juce::Image(), 0);
     //[/Constructor]
 }
 
@@ -275,32 +275,46 @@ void DemoComponent::buttonClicked (juce::Button* buttonThatWasClicked)
 void DemoComponent::setImage(juce::Image img)
 {
     fmt = nullptr;
-    reload(img, juce::String(), juce::Image(), 0);
+    reload(img, juce::StringPairArray(), juce::Image(), 0);
 }
 void DemoComponent::setImage(juce::File imgFile)
 {
     fmt = ExtendedImageFileFormat::findImageFormatForFile(imgFile);
     if (fmt)
     {
-        juce::OwnedArray<gin::ImageMetadata> md;
-        fmt->loadMetadataFromImage(md);
-        reload(fmt->decodeImage(), ImageMetadata::getAsString(md), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
+
+        
+        reload(fmt->decodeImage(), fmt->getMetadata(), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
     }
     else
     {
         jassertfalse;
     }
 }
-void DemoComponent::reload(juce::Image img, juce::String metadata, juce::Image thumbnail, int motionPhotoSize)
+void DemoComponent::reload(juce::Image img, juce::StringPairArray metadata, juce::Image thumbnail, int motionPhotoSize)
 {
     imagePreview->setImage(img);
-    metadataText->setText(metadata);
+    
     thumbnailPreview->setImage(thumbnail);
     imageResolution->setText("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()), dontSendNotification);
     thumbnailResolution->setText("Thumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()), dontSendNotification);
     motionPhotoLabel->setText("Motion Photo: " + String(motionPhotoSize) + " b", dontSendNotification);
     exportMotionPhoto->setEnabled(motionPhotoSize > 0);
+
+
+    juce::String mdString;
+    auto keys = metadata.getAllKeys();
+    auto values = metadata.getAllValues();
+    if (keys.size() == values.size())
+    {
+        for (int i = 0; i < keys.size(); i++)
+        {
+            mdString += keys[i] + ":  " + values[i] + "\n";
+        }
+    }    
+    metadataText->setText(mdString);
 }
+
 //[/MiscUserCode]
 
 

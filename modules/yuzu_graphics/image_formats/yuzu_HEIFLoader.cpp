@@ -271,8 +271,12 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeThumbnail()
 }
 
 
-bool yuzu::HEIFImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::ImageMetadata>& metadata)
+bool yuzu::HEIFImageExtendedFormat::loadMetadata()
 {
+
+	if (hasCheckedForMetadata)
+		return exif == nullptr;
+
 #if YUZU_LINK_LIBHEIF
 
 	heif_item_id exif_id;
@@ -295,16 +299,16 @@ bool yuzu::HEIFImageExtendedFormat::loadMetadataFromImage(juce::OwnedArray<gin::
         }
         else
         {
-            auto md = gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4);
-            if (md)
-                metadata.add(md);
+            exif.reset(gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4));         
         }
         free(exifData);
 	}
 
-	return metadata.size() > 0;
+	hasCheckedForMetadata = true;
+	return exif != nullptr;
 #else
 	jassertfalse;
+	hasCheckedForMetadata = true;
 	return false;
 #endif
 }
