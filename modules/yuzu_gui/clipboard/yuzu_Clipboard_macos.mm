@@ -5,14 +5,20 @@
 using namespace yuzu;
 using namespace juce;
 
-Image yuzu::SystemClipboard::getImageFromClipboard()
+bool yuzu::SystemClipboard::checkForImage()
+{
+    // not yet implemented
+    return false;
+}
+
+Image yuzu::SystemClipboard::pasteImage()
 {
 	// not yet implemented
 	jassertfalse;
 	return Image();
 }
 
-void yuzu::SystemClipboard::copyImageToClipboard(Image)
+void yuzu::SystemClipboard::copyImage(Image)
 {
 	// not yet implemented
 	jassertfalse;
