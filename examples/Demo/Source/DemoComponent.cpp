@@ -106,6 +106,9 @@ DemoComponent::DemoComponent ()
 DemoComponent::~DemoComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+#if JUCE_MAC
+    MenuBarModel::setMacMainMenu(nullptr);
+#endif
     //[/Destructor_pre]
 
     imagePreview = nullptr;
