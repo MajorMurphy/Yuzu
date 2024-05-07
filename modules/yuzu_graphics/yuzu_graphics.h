@@ -15,8 +15,8 @@
   version:            0.0.1
   name:               Yuzu image classes
   description:        image classes
-  website:            http://www.juce.com/juce
-  license:            GPL/Commercial
+  website:            https://github.com/majorMurphy/Yuzu
+  license:            BSD
   minimumCppStandard: 17
 
   dependencies:       juce_graphics gin_graphics gin_metadata gin_webp

@@ -12,11 +12,11 @@
 
   ID:                 yuzu_gui
   vendor:             Major Murphy
-  version:            0.0.1
+  version:            0.0.2
   name:               Yuzu GUI classes
   description:        gui classes
-  website:            http://www.juce.com/juce
-  license:            GPL/Commercial
+  website:            https://github.com/majorMurphy/Yuzu
+  license:            BSD
   minimumCppStandard: 17
 
   dependencies:       juce_gui_basics

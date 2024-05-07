@@ -7,8 +7,14 @@
 
 using namespace yuzu;
 using namespace juce;
-//==============================================================================
-Image yuzu::SystemClipboard::getImageFromClipboard()
+
+
+bool yuzu::SystemClipboard::checkForImage()
+{
+    return IsClipboardFormatAvailable(CF_DIB);
+}
+
+Image yuzu::SystemClipboard::pasteImage()
 {
     Image img;
     if (!IsClipboardFormatAvailable(CF_DIB))
@@ -85,7 +91,7 @@ Image yuzu::SystemClipboard::getImageFromClipboard()
     return img;
 }
 
-void yuzu::SystemClipboard::copyImageToClipboard(Image image)
+void yuzu::SystemClipboard::copyImage(Image image)
 {
     if (!OpenClipboard(NULL))
     {

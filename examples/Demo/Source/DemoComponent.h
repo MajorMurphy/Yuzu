@@ -37,7 +37,8 @@
                                                                     //[/Comments]
 */
 class DemoComponent  : public juce::Component,
-                       public juce::Button::Listener
+                       public juce::ApplicationCommandTarget,
+                       public juce::MenuBarModel
 {
 public:
     //==============================================================================
@@ -49,11 +50,33 @@ public:
     void setImage(juce::Image img);
     void setImage(juce::File imgFile);
     void reload(juce::Image img, juce::StringPairArray metadata, juce::Image thumbnail, int motionPhotoSize);
+
+    void browseForImage();
+    void exportVideo();
+    void copyImageToClipboard();
+    void pasteImageFromClipboard();
+    void about();
+
+
+    enum CommandIDs
+    {
+        openImageFileCmd = 1,
+        exportVideoCmd,
+        copyImageToClipboardCmd,
+        pasteImageFromClipboardCmd,
+        aboutCmd
+    };
+    juce::StringArray getMenuBarNames() override;
+    void getAllCommands(juce::Array<juce::CommandID>& c) override;
+    juce::PopupMenu getMenuForIndex(int menuIndex, const juce::String& /*menuName*/) override;
+    void getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo& result) override;
+    bool perform(const InvocationInfo& info) override;
+    juce::ApplicationCommandTarget* getNextCommandTarget() override { return nullptr; }
+    void menuItemSelected(int /*menuItemID*/, int /*topLevelMenuIndex*/) override {}
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -61,19 +84,17 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     std::unique_ptr<juce::FileChooser> chooser;
     std::unique_ptr<yuzu::ExtendedImageFileFormat> fmt;
+    juce::ApplicationCommandManager commandManager;
+    std::unique_ptr<juce::MenuBarComponent> menuBar;
     //[/UserVariables]
 
     //==============================================================================
     std::unique_ptr<juce::ImageComponent> imagePreview;
-    std::unique_ptr<juce::TextButton> openImageButton;
-    std::unique_ptr<juce::TextButton> copyImageButton;
-    std::unique_ptr<juce::TextButton> pasteImageButton;
     std::unique_ptr<juce::ImageComponent> thumbnailPreview;
     std::unique_ptr<juce::TextEditor> metadataText;
     std::unique_ptr<juce::Label> imageResolution;
     std::unique_ptr<juce::Label> thumbnailResolution;
     std::unique_ptr<juce::Label> motionPhotoLabel;
-    std::unique_ptr<juce::TextButton> exportMotionPhoto;
 
 
     //==============================================================================
