@@ -50,10 +50,10 @@
                postbuildCommand="#!/bin/sh&#10;&#10;GIT_ROOT=&quot;${PROJECT_DIR}/../../../../..&quot;&#10;FRAMEWORKS_FULL_PATH=&quot;${BUILT_PRODUCTS_DIR}/${FRAMEWORKS_FOLDER_PATH}&quot;&#10;&#10;mkdir -p &quot;${FRAMEWORKS_FULL_PATH}&quot;&#10;&#10;cp -R -L &quot;${GIT_ROOT}/libheif/build/libheif/libheif.1.dylib&quot; &quot;${FRAMEWORKS_FULL_PATH}&quot;&#10;cp -R -L &quot;${GIT_ROOT}/libde265/build/libde265/libde265.dylib&quot; &quot;${FRAMEWORKS_FULL_PATH}&quot;"
                extraLinkerFlags=" -rpath @executable_path/../Frameworks/">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../../../../libheif&#10;../../../../../libde265"
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="../../../../../libheif&#10;../../../../../libheif/build&#10;../../../../../libde265&#10;"
                        libraryPath="../../../../../libheif/build/libheif&#10;../../../../../libde265/build/libde265"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="../../../../../libheif/build/libheif&#10;../../../../../libde265/build/libde265"
-                       headerPath="../../../../../libheif&#10;../../../../../libde265"/>
+                       headerPath="../../../../../libheif&#10;../../../../../libheif/build&#10;../../../../../libde265"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="gin" path="../../../Gin/modules"/>
