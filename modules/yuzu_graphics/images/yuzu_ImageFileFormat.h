@@ -46,6 +46,7 @@ namespace yuzu
             inverted
         };
         Orientation getOriginalOrientation();
+        static juce::Image rotate(juce::Image image, Orientation orientation);
 
     protected:
         juce::MemoryBlock rawFileData;

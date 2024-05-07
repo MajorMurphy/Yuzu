@@ -40,52 +40,7 @@ juce::Image yuzu::JPEGImageExtendedFormat::decodeImage()
 	if (!img.isValid())
 		return img;
 
-	auto orientation = getOriginalOrientation();
-	float rotation = 0;
-	float translatedYscale = 1.0;
-	float translatedXscale = 1.0;
-	int rotatedWidth = 0, rotateHeight = 0;
-
-	switch (orientation)
-	{
-		case Orientation::portrait :
-			return img;
-		case Orientation::landscape270 :
-			rotation = MathConstants<float>::pi / -2.0;
-			translatedYscale = 1;
-			translatedXscale = 0;
-			rotatedWidth = img.getHeight();
-			rotateHeight = img.getWidth();
-			break;
-		case Orientation::landscape90 :
-			rotation = MathConstants<float>::pi / 2.0;
-			translatedYscale = 0;
-			translatedXscale = 1;
-			rotatedWidth = img.getHeight();
-			rotateHeight = img.getWidth();
-			break;
-		case Orientation::inverted :
-			rotation = MathConstants<float>::pi;
-			translatedYscale = 1;
-			translatedXscale = 1;
-			rotatedWidth = img.getWidth();
-			rotateHeight = img.getHeight();
-			break;
-		default:
-			jassertfalse;
-			return img;
-	}
-
-	Image rotated(img.getFormat(), rotatedWidth, rotateHeight, false);
-	Graphics g(rotated);
-	AffineTransform t;
-	t = t.rotated(rotation);
-	t = t.translated((float)rotated.getWidth() * translatedXscale, (float)rotated.getHeight() * translatedYscale);
-	g.setOpacity(1.0f);
-	g.drawImageTransformed(img, t);
-
-	return rotated;
-
+	return rotate(img, getOriginalOrientation());
 }
 
 juce::uint32 yuzu::JPEGImageExtendedFormat::getMotionPhotoSize()

@@ -81,7 +81,7 @@ namespace yuzu
     {
         if (loadMetadata())
         {
-            return exif->getThumbnailImage();
+            return rotate(exif->getThumbnailImage(), getOriginalOrientation());
         }
 
         return juce::Image();
@@ -142,6 +142,54 @@ namespace yuzu
         }
 
         return Orientation::portrait;
+    }
+
+    juce::Image ExtendedImageFileFormat::rotate(juce::Image img, yuzu::ExtendedImageFileFormat::Orientation orientation)
+    {
+        float rotation = 0;
+        float translatedYscale = 1.0;
+        float translatedXscale = 1.0;
+        int rotatedWidth = 0, rotateHeight = 0;
+
+        switch (orientation)
+        {
+        case Orientation::portrait:
+            return img;
+        case Orientation::landscape270:
+            rotation = juce::MathConstants<float>::pi / -2.0;
+            translatedYscale = 1;
+            translatedXscale = 0;
+            rotatedWidth = img.getHeight();
+            rotateHeight = img.getWidth();
+            break;
+        case Orientation::landscape90:
+            rotation = juce::MathConstants<float>::pi / 2.0;
+            translatedYscale = 0;
+            translatedXscale = 1;
+            rotatedWidth = img.getHeight();
+            rotateHeight = img.getWidth();
+            break;
+        case Orientation::inverted:
+            rotation = juce::MathConstants<float>::pi;
+            translatedYscale = 1;
+            translatedXscale = 1;
+            rotatedWidth = img.getWidth();
+            rotateHeight = img.getHeight();
+            break;
+        default:
+            jassertfalse;
+            return img;
+        }
+
+        juce::Image rotated(img.getFormat(), rotatedWidth, rotateHeight, false);
+        juce::Graphics g(rotated);
+        juce::AffineTransform t;
+        t = t.rotated(rotation);
+        t = t.translated((float)rotated.getWidth() * translatedXscale, (float)rotated.getHeight() * translatedYscale);
+        g.setOpacity(1.0f);
+        g.drawImageTransformed(img, t);
+
+        return rotated;
     }
 
     bool ExtendedImageFileFormat::loadMetadata()
