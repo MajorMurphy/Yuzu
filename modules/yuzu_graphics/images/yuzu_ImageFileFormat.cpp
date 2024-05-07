@@ -146,6 +146,9 @@ namespace yuzu
 
     juce::Image ExtendedImageFileFormat::rotate(juce::Image img, yuzu::ExtendedImageFileFormat::Orientation orientation)
     {
+        if (!img.isValid())
+            return juce::Image();
+
         float rotation = 0;
         float translatedYscale = 1.0;
         float translatedXscale = 1.0;
