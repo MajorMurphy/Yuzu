@@ -2,10 +2,6 @@
 
 #include "yuzu_ImageMetadata.h"
 
-#if YUZU_LINK_LIBHEIF
-#include <libheif/heif.h>
-#endif
-
 using namespace juce;
 namespace yuzu
 {
