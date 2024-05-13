@@ -81,17 +81,24 @@ namespace yuzu
     {
         if (loadMetadata())
         {
-            return rotate(exif->getThumbnailImage(), getOriginalOrientation());
+            return rotate(exifMetadata->getThumbnailImage(), getOriginalOrientation());
         }
 
         return juce::Image();
     }
 
-    juce::StringPairArray ExtendedImageFileFormat::getMetadata()
+    juce::StringPairArray ExtendedImageFileFormat::getExif()
     {        
         if (loadMetadata())
-            return exif->getAllMetadata();
+            return exifMetadata->getAllMetadata();
         else return juce::StringPairArray();
+    }
+
+    juce::String ExtendedImageFileFormat::getXmp()
+    {
+        if(!xmpMetadata)
+            return juce::String();
+        return xmpMetadata->toString();
     }
 
     bool ExtendedImageFileFormat::extractVideo(juce::OutputStream& os)
@@ -125,7 +132,7 @@ namespace yuzu
     {
         if (loadMetadata())
         {
-            auto value = getMetadata().getValue("Orientation", "");
+            auto value = getExif().getValue("Orientation", "");
             if (value.isNotEmpty())
             {
                 if (value.equalsIgnoreCase("1") || value.equalsIgnoreCase("0"))
@@ -198,7 +205,7 @@ namespace yuzu
     bool ExtendedImageFileFormat::loadMetadata()
     {
         if (hasCheckedForMetadata)
-            return exif != nullptr;
+            return exifMetadata != nullptr;
 
         juce::OwnedArray<gin::ImageMetadata> allMetadata;
 
@@ -210,15 +217,22 @@ namespace yuzu
                 if (md->getType().equalsIgnoreCase("exif"))
                 {
                     allMetadata.remove(allMetadata.indexOf(md), false);
-                    exif.reset((gin::ExifMetadata*)md);
-                    hasCheckedForMetadata = true;
-                    return true;
+                    exifMetadata.reset((gin::ExifMetadata*)md);
+                }
+                if (md->getType().equalsIgnoreCase("xmp"))
+                {  
+                    auto xmp = md->getAllMetadata();
+                    if (xmp.size() > 0)
+                    {
+                        auto xmpDoc = xmp.getValue(xmp.getAllKeys()[0], "<x:xmpmeta/>");
+                        xmpMetadata = juce::XmlDocument::parse(xmpDoc);
+                    }
                 }
             }
         }
 
         hasCheckedForMetadata = true;
-        return false;
+        return (exifMetadata || xmpMetadata);
     }
 
 

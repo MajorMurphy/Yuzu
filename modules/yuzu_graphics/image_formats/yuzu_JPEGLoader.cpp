@@ -78,3 +78,15 @@ juce::uint32 yuzu::JPEGImageExtendedFormat::getMotionPhotoSize()
 	hasCheckedForMotionPhoto = true;
 	return videoSize;
 }
+
+bool yuzu::JPEGImageExtendedFormat::containsUltraHDR()
+{
+	if (!xmpMetadata)
+		return false;
+	auto rdf = xmpMetadata->getChildByName("rdf:RDF");
+	if (!rdf)
+		return false;
+	auto desc = rdf->getChildByAttribute("xmlns:hdrgm", "http://ns.adobe.com/hdr-gain-map/1.0/");
+
+	return desc != nullptr;
+}

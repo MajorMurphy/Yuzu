@@ -55,33 +55,6 @@ DemoComponent::DemoComponent ()
     metadataText->setPopupMenuEnabled (true);
     metadataText->setText (juce::String());
 
-    imageResolution.reset (new juce::Label ("image resolution",
-                                            TRANS ("Primary Image: 1000 x 1000")));
-    addAndMakeVisible (imageResolution.get());
-    imageResolution->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    imageResolution->setJustificationType (juce::Justification::centredLeft);
-    imageResolution->setEditable (false, false, false);
-    imageResolution->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    imageResolution->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    thumbnailResolution.reset (new juce::Label ("thumbnail resolution",
-                                                TRANS ("Thumbnail: 100 x 100")));
-    addAndMakeVisible (thumbnailResolution.get());
-    thumbnailResolution->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    thumbnailResolution->setJustificationType (juce::Justification::centredLeft);
-    thumbnailResolution->setEditable (false, false, false);
-    thumbnailResolution->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    thumbnailResolution->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
-    motionPhotoLabel.reset (new juce::Label ("new label",
-                                             TRANS ("Motion Photo: 0 b")));
-    addAndMakeVisible (motionPhotoLabel.get());
-    motionPhotoLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
-    motionPhotoLabel->setJustificationType (juce::Justification::topLeft);
-    motionPhotoLabel->setEditable (false, false, false);
-    motionPhotoLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
-    motionPhotoLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
-
 
     //[UserPreSize]
     menuBar.reset(new MenuBarComponent(this));
@@ -99,7 +72,7 @@ DemoComponent::DemoComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    reload(juce::Image(), juce::StringPairArray(), juce::Image(), 0);
+    reload(juce::Image(), juce::StringPairArray(), juce::String(), false, juce::Image(), 0);
     //[/Constructor]
 }
 
@@ -114,16 +87,11 @@ DemoComponent::~DemoComponent()
     imagePreview = nullptr;
     thumbnailPreview = nullptr;
     metadataText = nullptr;
-    imageResolution = nullptr;
-    thumbnailResolution = nullptr;
-    motionPhotoLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
 }
-
-
 
 //==============================================================================
 void DemoComponent::paint (juce::Graphics& g)
@@ -143,11 +111,8 @@ void DemoComponent::resized()
     //[/UserPreResize]
 
     imagePreview->setBounds (0, 181, getWidth() - 0, getHeight() - 164);
-    thumbnailPreview->setBounds ((getWidth() - 7 - 141) + -5 - 206, 53, 206, 120 - 0);
-    metadataText->setBounds (8, 53, getWidth() - 383, 120);
-    imageResolution->setBounds (8 + 0, 53 + -7 - 24, (getWidth() - 383) - 0, 24);
-    thumbnailResolution->setBounds (((getWidth() - 7 - 141) + -5 - 206) + 0, 53 + -7 - 24, 206 - 0, 24);
-    motionPhotoLabel->setBounds (getWidth() - 7 - 141, 22, 141, 56);
+    thumbnailPreview->setBounds (getWidth() - 4 - proportionOfWidth (0.3158f), 54, proportionOfWidth (0.3158f), 120 - 0);
+    metadataText->setBounds (8, 53, proportionOfWidth (0.6640f), 120);
     //[UserResized] Add your own custom resize handling here..
     menuBar->setBounds(getBounds().removeFromTop(LookAndFeel::getDefaultLookAndFeel()
         .getDefaultMenuBarHeight()));
@@ -160,28 +125,36 @@ void DemoComponent::resized()
 void DemoComponent::setImage(juce::Image img)
 {
     fmt = nullptr;
-    reload(img, juce::StringPairArray(), juce::Image(), 0);
+    reload(img, juce::StringPairArray(), juce::String(), false, juce::Image(), 0);
 }
 void DemoComponent::setImage(juce::File imgFile)
 {
     fmt = ExtendedImageFileFormat::findImageFormatForFile(imgFile);
     if (fmt)
-        reload(fmt->decodeImage(), fmt->getMetadata(), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
+        reload(fmt->decodeImage(), fmt->getExif(), fmt->getXmp(), fmt->containsUltraHDR(), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
     else
         jassertfalse;
 }
-void DemoComponent::reload(juce::Image img, juce::StringPairArray metadata, juce::Image thumbnail, int motionPhotoSize)
+void DemoComponent::reload(juce::Image img,
+    juce::StringPairArray exif,
+    juce::String xmp,
+    bool uhdr,
+    juce::Image thumbnail,
+    int motionPhotoSize)
 {
+    juce::String mdString;
     imagePreview->setImage(img);
 
     thumbnailPreview->setImage(thumbnail);
-    imageResolution->setText("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()), dontSendNotification);
-    thumbnailResolution->setText("Thumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()), dontSendNotification);
-    motionPhotoLabel->setText("Motion Photo: \n" + String(motionPhotoSize) + " b", dontSendNotification);
+    mdString += ("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()));
 
-    juce::String mdString;
-    auto keys = metadata.getAllKeys();
-    auto values = metadata.getAllValues();
+    mdString += ("\nThumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()));
+    mdString += ("\nMotion Photo: " + String(motionPhotoSize) + " b");
+    mdString += ("\nUltra HDR: " + String(uhdr ? "true" : "false"));
+    mdString += "\n";
+
+    auto keys = exif.getAllKeys();
+    auto values = exif.getAllValues();
     if (keys.size() == values.size())
     {
         for (int i = 0; i < keys.size(); i++)
@@ -189,6 +162,9 @@ void DemoComponent::reload(juce::Image img, juce::StringPairArray metadata, juce
             mdString += keys[i] + ":  " + values[i] + "\n";
         }
     }
+
+    if(xmp.isNotEmpty())
+        mdString += "XMP:\n" + xmp;
     metadataText->setText(mdString);
 }
 
@@ -281,7 +257,7 @@ void DemoComponent::about()
     String text = JUCEApplication::getInstance()->getApplicationName();
     text += " - v" + JUCEApplication::getInstance()->getApplicationVersion() + "\n";
     text += "\nCopyright (C) Major Murphy";
-    NativeMessageBox::showMessageBoxAsync(MessageBoxIconType::InfoIcon, "About", text);    
+    NativeMessageBox::showMessageBoxAsync(MessageBoxIconType::InfoIcon, "About", text);
 }
 inline juce::StringArray DemoComponent::getMenuBarNames()
 {
@@ -404,32 +380,13 @@ BEGIN_JUCER_METADATA
                     virtualName="" explicitFocusOrder="0" pos="0 181 0M 164M" class="juce::ImageComponent"
                     params=""/>
   <GENERICCOMPONENT name="thumbnail" id="29e9dcfea34f1bba" memberName="thumbnailPreview"
-                    virtualName="" explicitFocusOrder="0" pos="-5r 53 206 0M" posRelativeX="a2b93263c4c6d7dd"
+                    virtualName="" explicitFocusOrder="0" pos="4Rr 54 31.579% 0M"
                     posRelativeH="5bdef0c0aaac48d6" class="juce::ImageComponent"
                     params=""/>
   <TEXTEDITOR name="metadata" id="5bdef0c0aaac48d6" memberName="metadataText"
-              virtualName="" explicitFocusOrder="0" pos="8 53 383M 120" initialText=""
-              multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="1"
-              caret="0" popupmenu="1"/>
-  <LABEL name="image resolution" id="cede6fd8be4655d1" memberName="imageResolution"
-         virtualName="" explicitFocusOrder="0" pos="0 -7r 0M 24" posRelativeX="5bdef0c0aaac48d6"
-         posRelativeY="5bdef0c0aaac48d6" posRelativeW="5bdef0c0aaac48d6"
-         edTextCol="ff000000" edBkgCol="0" labelText="Primary Image: 1000 x 1000"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
-         italic="0" justification="33"/>
-  <LABEL name="thumbnail resolution" id="693cdf52278efb48" memberName="thumbnailResolution"
-         virtualName="" explicitFocusOrder="0" pos="0 -7r 0M 24" posRelativeX="29e9dcfea34f1bba"
-         posRelativeY="29e9dcfea34f1bba" posRelativeW="29e9dcfea34f1bba"
-         posRelativeH="29e9dcfea34f1bba" edTextCol="ff000000" edBkgCol="0"
-         labelText="Thumbnail: 100 x 100" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
-         kerning="0.0" bold="0" italic="0" justification="33"/>
-  <LABEL name="new label" id="a2b93263c4c6d7dd" memberName="motionPhotoLabel"
-         virtualName="" explicitFocusOrder="0" pos="7Rr 22 141 56" edTextCol="ff000000"
-         edBkgCol="0" labelText="Motion Photo: 0 b" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="9"/>
+              virtualName="" explicitFocusOrder="0" pos="8 53 66.404% 120"
+              initialText="" multiline="1" retKeyStartsLine="0" readonly="1"
+              scrollbars="1" caret="0" popupmenu="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

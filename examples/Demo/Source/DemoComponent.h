@@ -49,7 +49,13 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setImage(juce::Image img);
     void setImage(juce::File imgFile);
-    void reload(juce::Image img, juce::StringPairArray metadata, juce::Image thumbnail, int motionPhotoSize);
+    void reload(
+        juce::Image img,
+        juce::StringPairArray exif,
+        juce::String xmp,
+        bool uhdr,
+        juce::Image thumbnail,
+        int motionPhotoSize);
 
     void browseForImage();
     void exportVideo();
@@ -92,9 +98,6 @@ private:
     std::unique_ptr<juce::ImageComponent> imagePreview;
     std::unique_ptr<juce::ImageComponent> thumbnailPreview;
     std::unique_ptr<juce::TextEditor> metadataText;
-    std::unique_ptr<juce::Label> imageResolution;
-    std::unique_ptr<juce::Label> thumbnailResolution;
-    std::unique_ptr<juce::Label> motionPhotoLabel;
 
 
     //==============================================================================

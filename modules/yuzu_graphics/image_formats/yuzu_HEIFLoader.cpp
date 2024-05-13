@@ -275,7 +275,7 @@ bool yuzu::HEIFImageExtendedFormat::loadMetadata()
 {
 
 	if (hasCheckedForMetadata)
-		return exif == nullptr;
+		return exifMetadata == nullptr;
 
 #if YUZU_LINK_LIBHEIF
 
@@ -299,13 +299,13 @@ bool yuzu::HEIFImageExtendedFormat::loadMetadata()
         }
         else
         {
-            exif.reset(gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4));         
+            exifMetadata.reset(gin::ExifMetadata::create(exifData + 4, (int)exifSize - 4));         
         }
         free(exifData);
 	}
 
 	hasCheckedForMetadata = true;
-	return exif != nullptr;
+	return exifMetadata != nullptr;
 #else
 	jassertfalse;
 	hasCheckedForMetadata = true;

@@ -33,8 +33,10 @@ namespace yuzu
 
         virtual juce::Image decodeImage() = 0;
         virtual juce::Image decodeThumbnail();
-        virtual juce::StringPairArray getMetadata();
+        virtual juce::StringPairArray getExif();
+        virtual juce::String getXmp();
 
+        virtual bool containsUltraHDR() { return false; }
         virtual juce::uint32 getMotionPhotoSize() { return 0; }
         bool extractVideo(juce::OutputStream& os);
         
@@ -54,7 +56,8 @@ namespace yuzu
         juce::uint32 videoSize = 0;
 
         virtual bool loadMetadata();
-        std::unique_ptr<gin::ExifMetadata> exif;
+        std::unique_ptr<gin::ExifMetadata> exifMetadata;
+        std::unique_ptr<juce::XmlElement> xmpMetadata;
         bool hasCheckedForMotionPhoto = false;
         bool hasCheckedForMetadata = false;
     };
@@ -150,6 +153,9 @@ namespace yuzu
 
         juce::Image decodeImage() override;
         juce::uint32 getMotionPhotoSize() override;
+
+        // https://developer.android.com/media/platform/hdr-image-format
+        bool containsUltraHDR() override;
 
     private:
         juce::JPEGImageFormat fmt;
