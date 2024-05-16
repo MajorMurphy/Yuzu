@@ -99,3 +99,99 @@ bool yuzu::JPEGImageExtendedFormat::containsUltraHDR()
 	return desc != nullptr;
 #endif
 }
+
+yuzu::ExtendedImage yuzu::JPEGImageExtendedFormat::decodeHDRImage()
+{
+	
+
+#if YUZU_LINK_LIBULTRAHDR
+	if (!containsUltraHDR())
+		return yuzu::ExtendedImage();
+
+	uhdr_compressed_image_t compressed{};
+
+	compressed.capacity = rawFileData.getSize();
+	compressed.data_sz = compressed.capacity;
+	compressed.data = rawFileData.getData();
+	compressed.cg = UHDR_CG_UNSPECIFIED;
+	compressed.ct = UHDR_CT_UNSPECIFIED;
+	compressed.range = UHDR_CR_UNSPECIFIED;
+
+	auto decoder = uhdr_create_decoder();
+	if (!decoder)
+	{
+		jassertfalse;
+		return yuzu::ExtendedImage();
+	}
+	auto status = uhdr_dec_set_image(decoder, &compressed);
+	if (status.error_code != UHDR_CODEC_OK)
+	{
+		jassertfalse;
+		if (status.has_detail)
+			DBG(status.detail);
+
+		uhdr_release_decoder(decoder);
+		return yuzu::ExtendedImage();
+	}
+
+	auto colorTransfer = uhdr_color_transfer::UHDR_CT_LINEAR;
+	status = uhdr_dec_set_out_color_transfer(decoder, colorTransfer);
+	if (status.error_code != UHDR_CODEC_OK)
+	{
+		jassertfalse;
+		if (status.has_detail)
+			DBG(status.detail);
+
+		uhdr_release_decoder(decoder);
+		return yuzu::ExtendedImage();
+	}
+
+	auto pixelFormat = uhdr_img_fmt_t::UHDR_IMG_FMT_64bppRGBAHalfFloat;
+	status = uhdr_dec_set_out_img_format(decoder, pixelFormat);
+	if (status.error_code != UHDR_CODEC_OK)
+	{
+		jassertfalse;
+		if (status.has_detail)
+			DBG(status.detail);
+
+		uhdr_release_decoder(decoder);
+		return yuzu::ExtendedImage();
+	}
+
+	status = uhdr_decode(decoder);
+	if (status.error_code != UHDR_CODEC_OK)
+	{
+		jassertfalse;
+		if (status.has_detail)
+			DBG(status.detail);
+
+		uhdr_release_decoder(decoder);
+		return yuzu::ExtendedImage();
+	}
+	
+	auto output = uhdr_get_decoded_image(decoder);
+	if (!output)
+	{
+		jassertfalse;
+		uhdr_release_decoder(decoder);
+		return yuzu::ExtendedImage();
+	}
+	int bytespp = (output->fmt == UHDR_IMG_FMT_64bppRGBAHalfFloat) ? 8 : 4;
+	juce::MemoryBlock data(output->w * output->h * bytespp);
+	data.copyFrom(output->planes[0], 0, data.getSize());
+
+	yuzu::ExtendedImage hdr(
+		ExtendedImage::PixelFormat::RGBAHalfFloat64,
+		output->w,
+		output->h,
+		bytespp * 8,
+		output->stride[0]*bytespp,
+		data);
+	
+	uhdr_release_decoder(decoder);
+	return hdr;
+
+#else	
+	yuzu::ExtendedImage();
+#endif
+}

@@ -17,6 +17,8 @@ namespace yuzu
 		void setImage(juce::Image& newSDRImg, yuzu::ExtendedImage& newHDRImg);
 		juce::Image getImage() { return sdr; }
 
+		bool displaySupportsHDR();
+
 	private:
 		yuzu::ExtendedImage hdr;
 		juce::Image sdr;

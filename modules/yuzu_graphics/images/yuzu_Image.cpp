@@ -5,7 +5,7 @@
 
 bool yuzu::ExtendedImage::isValid()
 { 
-    if (width<=0)
+    if (width <= 0)
         return false;
     if (height <= 0)
         return false;

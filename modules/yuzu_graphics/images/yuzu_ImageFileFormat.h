@@ -157,6 +157,7 @@ namespace yuzu
 
         // https://developer.android.com/media/platform/hdr-image-format
         bool containsUltraHDR() override;
+        yuzu::ExtendedImage decodeHDRImage() override;
 
     private:
         juce::JPEGImageFormat fmt;
