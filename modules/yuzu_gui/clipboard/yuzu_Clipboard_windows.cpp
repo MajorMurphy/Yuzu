@@ -14,9 +14,9 @@ bool yuzu::SystemClipboard::checkForImage()
     return IsClipboardFormatAvailable(CF_DIB);
 }
 
-Image yuzu::SystemClipboard::pasteImage()
+juce::Image yuzu::SystemClipboard::pasteImage()
 {
-    Image img;
+    juce::Image img;
     if (!IsClipboardFormatAvailable(CF_DIB))
     {
         jassertfalse;
@@ -46,9 +46,9 @@ Image yuzu::SystemClipboard::pasteImage()
             )
         {
             if (infoHeader->biCompression == BI_BITFIELDS)
-                img = Image(Image::ARGB, infoHeader->biWidth, abs(infoHeader->biHeight), true);
+                img = juce::Image(juce::Image::ARGB, infoHeader->biWidth, abs(infoHeader->biHeight), true);
             else
-                img = Image(Image::RGB, infoHeader->biWidth, abs(infoHeader->biHeight), true);
+                img = juce::Image(juce::Image::RGB, infoHeader->biWidth, abs(infoHeader->biHeight), true);
 
             auto imageData = (char*)(data)+sizeof(BITMAPINFOHEADER);
             auto stride = ((((infoHeader->biWidth * infoHeader->biBitCount) + 31) & ~31) >> 3);
@@ -91,14 +91,14 @@ Image yuzu::SystemClipboard::pasteImage()
     return img;
 }
 
-void yuzu::SystemClipboard::copyImage(Image image)
+void yuzu::SystemClipboard::copyImage(juce::Image image)
 {
     if (!OpenClipboard(NULL))
     {
         jassertfalse;
         return;
     }
-    image = image.convertedToFormat(Image::PixelFormat::RGB);
+    image = image.convertedToFormat(juce::Image::PixelFormat::RGB);
 
     BITMAPINFOHEADER header;
     header.biSize = sizeof(BITMAPINFOHEADER);
@@ -135,7 +135,7 @@ void yuzu::SystemClipboard::copyImage(Image image)
 
     memcpy_s(cbData, header.biSizeImage, &header, sizeof(header));
 
-    Image::BitmapData bmp(image, Image::BitmapData::readOnly);
+    juce::Image::BitmapData bmp(image, juce::Image::BitmapData::readOnly);
     jassert(bmp.lineStride == stride);
 
     auto currentLine = (void*)((int64)cbData + (sizeof(header)));

@@ -50,7 +50,7 @@ public:
     void setImage(juce::Image img);
     void setImage(juce::File imgFile);
     void reload(
-        juce::Image img,
+        yuzu::Image img,
         juce::StringPairArray exif,
         juce::String xmp,
         bool uhdr,
@@ -95,7 +95,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::ImageComponent> imagePreview;
+    std::unique_ptr<yuzu::ImageComponent> imagePreview;
     std::unique_ptr<juce::ImageComponent> thumbnailPreview;
     std::unique_ptr<juce::TextEditor> metadataText;
 

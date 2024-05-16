@@ -19,7 +19,7 @@
   license:            BSD
   minimumCppStandard: 17
 
-  dependencies:       juce_gui_basics
+  dependencies:       juce_gui_basics yuzu_graphics
   OSXFrameworks:      
   iOSFrameworks:      
 
@@ -32,6 +32,8 @@
 #define YUZU_GUI_INCLUDED
 
 #include <juce_gui_basics/juce_gui_basics.h>
+#include <yuzu_graphics/yuzu_graphics.h>
 
 //==============================================================================
 #include "clipboard/yuzu_Clipboard.h"
+#include "components/yuzu_ImageComponent.h"

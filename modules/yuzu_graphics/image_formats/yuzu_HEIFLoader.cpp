@@ -99,7 +99,7 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 	if (!primaryImageHandle)
 	{
 		jassertfalse;
-		return Image();
+		return juce::Image();
 	}
 
 	auto width = heif_image_handle_get_width(primaryImageHandle);
@@ -113,7 +113,7 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 	if (width <= 0 || height <= 0)
 	{
 		jassertfalse;
-		return Image();
+		return juce::Image();
 	}
 
 	// decode the image and convert colorspace to RGB, saved as 24bit interleaved
@@ -130,7 +130,7 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 	{
         DBG("libheif decode error: " + String(error.message));
 		jassertfalse;
-		return Image();
+		return juce::Image();
 	}
 
 	int stride = 0;
@@ -138,11 +138,11 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeImage()
 	if (stride <= 0)
 	{
 		jassertfalse;
-		return Image();
+		return juce::Image();
 	}
 
-	auto decodedImage = Image(hasAlpha ? Image::ARGB : Image::RGB, width, height, false);
-	Image::BitmapData bmp(decodedImage, Image::BitmapData::writeOnly);
+	auto decodedImage = juce::Image(hasAlpha ? juce::Image::ARGB : juce::Image::RGB, width, height, false);
+	juce::Image::BitmapData bmp(decodedImage, juce::Image::BitmapData::writeOnly);
 	for (int y = 0; y < height; y++)
 	{
 		auto linePtr = data + (y * stride);
@@ -222,7 +222,7 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeThumbnail()
     {
         DBG("libheif decode error: " + String(error.message));
         jassertfalse;
-        return Image();
+        return juce::Image();
     }
 
 	int stride = 0;
@@ -230,11 +230,11 @@ juce::Image yuzu::HEIFImageExtendedFormat::decodeThumbnail()
 	if (stride <= 0)
 	{
 		jassertfalse;
-		return Image();
+		return juce::Image();
 	}
 
-	decodedImage = Image(hasAlpha ? Image::ARGB : Image::RGB, width, height, false);
-	Image::BitmapData bmp(decodedImage, Image::BitmapData::writeOnly);
+	decodedImage = juce::Image(hasAlpha ? juce::Image::ARGB : juce::Image::RGB, width, height, false);
+	juce::Image::BitmapData bmp(decodedImage, juce::Image::BitmapData::writeOnly);
 	for (int y = 0; y < height; y++)
 	{
 		auto linePtr = decodedData + (y * stride);
@@ -377,7 +377,7 @@ juce::Image yuzu::HEIFImageFormat::decodeImage(juce::InputStream& is)
 	return fmt.decodeImage();
 }
 
-bool yuzu::HEIFImageFormat::writeImageToStream(const Image&, OutputStream&)
+bool yuzu::HEIFImageFormat::writeImageToStream(const juce::Image&, OutputStream&)
 {
 	// not yet implemented
 	jassertfalse;

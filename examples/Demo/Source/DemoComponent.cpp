@@ -37,7 +37,7 @@ DemoComponent::DemoComponent ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    imagePreview.reset (new juce::ImageComponent());
+    imagePreview.reset (new yuzu::ImageComponent());
     addAndMakeVisible (imagePreview.get());
     imagePreview->setName ("image preview");
 
@@ -111,8 +111,8 @@ void DemoComponent::resized()
     //[/UserPreResize]
 
     imagePreview->setBounds (0, 181, getWidth() - 0, getHeight() - 164);
-    thumbnailPreview->setBounds (getWidth() - 4 - proportionOfWidth (0.3158f), 54, proportionOfWidth (0.3158f), 120 - 0);
-    metadataText->setBounds (8, 53, proportionOfWidth (0.6640f), 120);
+    thumbnailPreview->setBounds (getWidth() - 4 - proportionOfWidth (0.3160f), 54, proportionOfWidth (0.3160f), 120 - 0);
+    metadataText->setBounds (8, 53, proportionOfWidth (0.6642f), 120);
     //[UserResized] Add your own custom resize handling here..
     menuBar->setBounds(getBounds().removeFromTop(LookAndFeel::getDefaultLookAndFeel()
         .getDefaultMenuBarHeight()));
@@ -135,7 +135,7 @@ void DemoComponent::setImage(juce::File imgFile)
     else
         jassertfalse;
 }
-void DemoComponent::reload(juce::Image img,
+void DemoComponent::reload(yuzu::Image img,
     juce::StringPairArray exif,
     juce::String xmp,
     bool uhdr,
@@ -244,7 +244,7 @@ void DemoComponent::exportVideo()
 
 void DemoComponent::copyImageToClipboard()
 {
-    yuzu::SystemClipboard::copyImage(imagePreview->getImage());
+    yuzu::SystemClipboard::copyImage(imagePreview->getImage().getSDR());
 }
 
 void DemoComponent::pasteImageFromClipboard()
@@ -377,14 +377,14 @@ BEGIN_JUCER_METADATA
                  initialHeight="400">
   <BACKGROUND backgroundColour="ff323e44"/>
   <GENERICCOMPONENT name="image preview" id="bf43439ea64874c4" memberName="imagePreview"
-                    virtualName="" explicitFocusOrder="0" pos="0 181 0M 164M" class="juce::ImageComponent"
+                    virtualName="" explicitFocusOrder="0" pos="0 181 0M 164M" class="yuzu::ImageComponent"
                     params=""/>
   <GENERICCOMPONENT name="thumbnail" id="29e9dcfea34f1bba" memberName="thumbnailPreview"
-                    virtualName="" explicitFocusOrder="0" pos="4Rr 54 31.579% 0M"
+                    virtualName="" explicitFocusOrder="0" pos="4Rr 54 31.602% 0M"
                     posRelativeH="5bdef0c0aaac48d6" class="juce::ImageComponent"
                     params=""/>
   <TEXTEDITOR name="metadata" id="5bdef0c0aaac48d6" memberName="metadataText"
-              virtualName="" explicitFocusOrder="0" pos="8 53 66.404% 120"
+              virtualName="" explicitFocusOrder="0" pos="8 53 66.423% 120"
               initialText="" multiline="1" retKeyStartsLine="0" readonly="1"
               scrollbars="1" caret="0" popupmenu="1"/>
 </JUCER_COMPONENT>
