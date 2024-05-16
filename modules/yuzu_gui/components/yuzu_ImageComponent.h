@@ -9,15 +9,16 @@ namespace yuzu
 	{
 	public:
 		ImageComponent() {};
-		ImageComponent(yuzu::Image img) : img(img) {}
+		ImageComponent(juce::Image sdr, yuzu::ExtendedImage hdr = yuzu::ExtendedImage()) : sdr(sdr), hdr(hdr) {}
 		~ImageComponent()=default;
 
 		void paint(juce::Graphics& g) override;
 
-		void setImage(yuzu::Image& newImg);
-		yuzu::Image getImage() { return img; }
+		void setImage(juce::Image& newSDRImg, yuzu::ExtendedImage& newHDRImg);
+		juce::Image getImage() { return sdr; }
 
 	private:
-		yuzu::Image img;
+		yuzu::ExtendedImage hdr;
+		juce::Image sdr;
 	};
 }

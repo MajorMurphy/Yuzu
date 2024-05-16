@@ -45,6 +45,15 @@
  #define YUZU_LINK_LIBHEIF 0
 #endif
 
+//==============================================================================
+/** Config: YUZU_LINK_LIBULTRAHDR
+
+    This will enable support for loading UHDR JPEG images by linking to libultrahdr
+*/
+#ifndef YUZU_LINK_LIBULTRAHDR
+#define YUZU_LINK_LIBULTRAHDR 0
+#endif
+
 
 //==============================================================================
 #include "images/yuzu_Image.h"

@@ -50,7 +50,8 @@ public:
     void setImage(juce::Image img);
     void setImage(juce::File imgFile);
     void reload(
-        yuzu::Image img,
+        juce::Image sdr,
+        yuzu::ExtendedImage hdr,
         juce::StringPairArray exif,
         juce::String xmp,
         bool uhdr,

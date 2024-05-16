@@ -2,6 +2,9 @@
 
 #include "../images/yuzu_ImageFileFormat.h"
 
+#if YUZU_LINK_LIBULTRAHDR
+#include <ultrahdr_api.h>
+#endif
 
 using namespace yuzu;
 using namespace juce;
@@ -81,6 +84,11 @@ juce::uint32 yuzu::JPEGImageExtendedFormat::getMotionPhotoSize()
 
 bool yuzu::JPEGImageExtendedFormat::containsUltraHDR()
 {
+#if YUZU_LINK_LIBULTRAHDR
+	return (is_uhdr_image(rawFileData.getData(), rawFileData.getSize()));
+#else
+	loadMetadata();
+
 	if (!xmpMetadata)
 		return false;
 	auto rdf = xmpMetadata->getChildByName("rdf:RDF");
@@ -89,4 +97,5 @@ bool yuzu::JPEGImageExtendedFormat::containsUltraHDR()
 	auto desc = rdf->getChildByAttribute("xmlns:hdrgm", "http://ns.adobe.com/hdr-gain-map/1.0/");
 
 	return desc != nullptr;
+#endif
 }

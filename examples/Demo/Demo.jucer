@@ -26,11 +26,14 @@
     <MODULE id="yuzu_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
     <MODULE id="yuzu_gui" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
   </MODULES>
-  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" YUZU_LINK_LIBHEIF="1" JUCE_USE_COREIMAGE_LOADER="1"/>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" YUZU_LINK_LIBHEIF="1" JUCE_USE_COREIMAGE_LOADER="1"
+               YUZU_LINK_LIBULTRAHDR="1"/>
   <EXPORTFORMATS>
-    <VS2022 targetFolder="Builds/VisualStudio2022">
+    <VS2022 targetFolder="Builds/VisualStudio2022" externalLibraries="uhdr.lib">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="Demo"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Demo" headerPath="../../../../../libultrahdr"
+                       libraryPath="../../../../../libultrahdr/build_directory/Debug"
+                       postbuildCommand="xcopy /y /d  &quot;$(ProjectDir)..\..\..\..\..\libultrahdr\build_directory\Debug\*.dll&quot; &quot;$(OutDir)&quot;"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="Demo"/>
       </CONFIGURATIONS>
       <MODULEPATHS>

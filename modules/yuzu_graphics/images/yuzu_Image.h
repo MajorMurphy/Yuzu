@@ -4,22 +4,30 @@
 
 namespace yuzu
 {
-	class Image
+	class ExtendedImage
 	{
 	public:
-		Image() {};
-		Image(juce::Image img) : primary(img) {};
-		juce::Image getSDR() { return primary; }
+		enum PixelFormat
+		{
+			UnknownPixelFormat,
+			RGBA1010102
+		};
 
-		bool isHDR();
+		ExtendedImage() {};
+		~ExtendedImage() {};
 
-		int getWidth() { return primary.getWidth(); }
-		int getHeight() { return primary.getHeight(); }
+		int getWidth() { return width; }
+		int getHeight() { return height; }
 		bool isValid();
 
 	private:
-		juce::Image primary;
-		juce::Image gainMap;
+		int width = 0;
+		int height = 0;
+		int lineStride = 0;
+		int bpp = 0;
+		PixelFormat pixelFmt = UnknownPixelFormat;
+
+		juce::MemoryBlock data;
 	};
 
 }

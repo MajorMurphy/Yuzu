@@ -5,18 +5,18 @@
 
 void yuzu::ImageComponent::paint(juce::Graphics& g)
 {
-	if (img.isHDR())
+	if (/*display supports HDR && */ hdr.isValid())
 	{
 		jassertfalse;
 	}
 	else
 	{
-		g.drawImageWithin(img.getSDR(), 0,0, getWidth(), getHeight(), juce::RectanglePlacement::centred);
+		g.drawImageWithin(sdr, 0,0, getWidth(), getHeight(), juce::RectanglePlacement::centred);
 	}
 }
-
-void yuzu::ImageComponent::setImage(yuzu::Image& newImg) 
-{ 
-	img = newImg; 
+void yuzu::ImageComponent::setImage(juce::Image& newSDRImg, yuzu::ExtendedImage& newHDRImg)
+{
+	hdr = newHDRImg;
+	sdr = newSDRImg;
 	repaint();
 }

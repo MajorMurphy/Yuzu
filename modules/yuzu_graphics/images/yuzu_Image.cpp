@@ -2,21 +2,19 @@
 
 #include "yuzu_Image.h"
 
-bool yuzu::Image::isHDR()
-{
-    return gainMap.isValid();
-}
 
-bool yuzu::Image::isValid() 
+bool yuzu::ExtendedImage::isValid()
 { 
-    if (!primary.isValid())
+    if (width<=0)
         return false;
-    if (gainMap.isValid())
-    {
-        if (gainMap.getHeight() != primary.getHeight())
-            return false;
-        if (gainMap.getWidth() != primary.getWidth())
-            return false;
-    }
+    if (height <= 0)
+        return false;
+    if (lineStride <= 0)
+        return false;
+    if (bpp <= 0)
+        return false;
+    if (pixelFmt == UnknownPixelFormat)
+        return false;
+
     return true;
 }

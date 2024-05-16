@@ -35,6 +35,7 @@ namespace yuzu
         virtual juce::Image decodeThumbnail();
         virtual juce::StringPairArray getExif();
         virtual juce::String getXmp();
+        virtual yuzu::ExtendedImage decodeHDRImage() { return yuzu::ExtendedImage(); }
 
         virtual bool containsUltraHDR() { return false; }
         virtual juce::uint32 getMotionPhotoSize() { return 0; }

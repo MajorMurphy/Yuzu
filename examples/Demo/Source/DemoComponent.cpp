@@ -72,7 +72,7 @@ DemoComponent::DemoComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-    reload(juce::Image(), juce::StringPairArray(), juce::String(), false, juce::Image(), 0);
+    reload(juce::Image(), yuzu::ExtendedImage(), juce::StringPairArray(), juce::String(), false, juce::Image(), 0);
     //[/Constructor]
 }
 
@@ -125,17 +125,19 @@ void DemoComponent::resized()
 void DemoComponent::setImage(juce::Image img)
 {
     fmt = nullptr;
-    reload(img, juce::StringPairArray(), juce::String(), false, juce::Image(), 0);
+    reload(img, yuzu::ExtendedImage(), juce::StringPairArray(), juce::String(), false, juce::Image(), 0);
 }
 void DemoComponent::setImage(juce::File imgFile)
 {
     fmt = ExtendedImageFileFormat::findImageFormatForFile(imgFile);
     if (fmt)
-        reload(fmt->decodeImage(), fmt->getExif(), fmt->getXmp(), fmt->containsUltraHDR(), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
+        reload(fmt->decodeImage(), fmt->decodeHDRImage(), fmt->getExif(), fmt->getXmp(), fmt->containsUltraHDR(), fmt->decodeThumbnail(), fmt->getMotionPhotoSize());
     else
         jassertfalse;
 }
-void DemoComponent::reload(yuzu::Image img,
+void DemoComponent::reload(
+    juce::Image sdr,
+    yuzu::ExtendedImage hdr,
     juce::StringPairArray exif,
     juce::String xmp,
     bool uhdr,
@@ -143,10 +145,11 @@ void DemoComponent::reload(yuzu::Image img,
     int motionPhotoSize)
 {
     juce::String mdString;
-    imagePreview->setImage(img);
+
+    imagePreview->setImage(sdr, hdr);
 
     thumbnailPreview->setImage(thumbnail);
-    mdString += ("Primary: " + String(img.getWidth()) + " x " + String(img.getHeight()));
+    mdString += ("Primary: " + String(sdr.getWidth()) + " x " + String(sdr.getHeight()));
 
     mdString += ("\nThumbnail: " + String(thumbnail.getWidth()) + " x " + String(thumbnail.getHeight()));
     mdString += ("\nMotion Photo: " + String(motionPhotoSize) + " b");
@@ -244,7 +247,7 @@ void DemoComponent::exportVideo()
 
 void DemoComponent::copyImageToClipboard()
 {
-    yuzu::SystemClipboard::copyImage(imagePreview->getImage().getSDR());
+    yuzu::SystemClipboard::copyImage(imagePreview->getImage());
 }
 
 void DemoComponent::pasteImageFromClipboard()
