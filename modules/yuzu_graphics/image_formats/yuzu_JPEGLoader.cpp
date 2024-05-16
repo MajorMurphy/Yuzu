@@ -81,6 +81,8 @@ juce::uint32 yuzu::JPEGImageExtendedFormat::getMotionPhotoSize()
 
 bool yuzu::JPEGImageExtendedFormat::containsUltraHDR()
 {
+	loadMetadata();
+
 	if (!xmpMetadata)
 		return false;
 	auto rdf = xmpMetadata->getChildByName("rdf:RDF");
