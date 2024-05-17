@@ -180,13 +180,24 @@ yuzu::ExtendedImage yuzu::JPEGImageExtendedFormat::decodeHDRImage()
 	juce::MemoryBlock data(output->w * output->h * bytespp);
 	data.copyFrom(output->planes[0], 0, data.getSize());
 
+	auto embeddedProfile = uhdr_dec_get_icc(decoder);
+
+	juce::MemoryBlock icc;
+	if (embeddedProfile)
+	{
+		icc.setSize(embeddedProfile->data_sz);
+		icc.copyFrom(embeddedProfile->data, 0, embeddedProfile->data_sz);
+	}
+
 	yuzu::ExtendedImage hdr(
 		ExtendedImage::PixelFormat::RGBAHalfFloat64,
 		output->w,
 		output->h,
 		bytespp * 8,
 		output->stride[0]*bytespp,
-		data);
+		data,
+		icc
+		);
 	
 	uhdr_release_decoder(decoder);
 	return hdr;

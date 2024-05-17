@@ -17,7 +17,14 @@ void yuzu::ImageComponent::paint(juce::Graphics& g)
 		&& g.getInternalContext().supportsHDR()
 		)
 	{
-		g.getInternalContext().drawImageHDR(hdr.getWidth(), hdr.getHeight(), hdr.getStride(), hdr.getData(), juce::AffineTransform());
+		g.getInternalContext().drawImageHDR(
+			hdr.getWidth(), 
+			hdr.getHeight(), 
+			hdr.getStride(), 
+			hdr.getData(), 
+			hdr.getICC(), 
+			hdr.getICCSize(), 
+			juce::AffineTransform());
 	}
 	
 	g.drawImageWithin(sdr, 0,0, getWidth(), getHeight(), juce::RectanglePlacement::centred);

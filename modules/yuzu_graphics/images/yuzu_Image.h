@@ -21,12 +21,15 @@ namespace yuzu
 			unsigned int height,
 			unsigned int bpp,
 			unsigned int lineStride,
-			juce::MemoryBlock data
+			juce::MemoryBlock data,
+			juce::MemoryBlock icc
 		) : pixelFmt(fmt),
 			width(width),
 			height(height),
 			bpp(bpp),
-			lineStride(lineStride)
+			lineStride(lineStride),
+			data(data),
+			icc(icc)
 		{};
 		~ExtendedImage() {};
 
@@ -34,6 +37,8 @@ namespace yuzu
 		int getHeight() { return height; }
 		int getStride() { return lineStride; }
 		void* getData() { return data.getData(); }
+		void* getICC() { return icc.getData(); }
+		unsigned int getICCSize() { return icc.getSize(); }
 
 		PixelFormat getFormat() { return pixelFmt; }
 
@@ -47,6 +52,7 @@ namespace yuzu
 		PixelFormat pixelFmt = UnknownPixelFormat;
 
 		juce::MemoryBlock data;
+		juce::MemoryBlock icc;
 	};
 
 }

@@ -1,6 +1,7 @@
 // Copyright (c) 2024 Major Murphy
 
 #pragma once
+#include <JuceHeader.h>
 #include <yuzu_graphics/images/yuzu_Image.h>
 
 namespace yuzu
@@ -23,4 +24,5 @@ namespace yuzu
 		yuzu::ExtendedImage hdr;
 		juce::Image sdr;
 	};
+
 }
