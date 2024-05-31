@@ -334,7 +334,10 @@ juce::uint32 yuzu::HEIFImageExtendedFormat::getMotionPhotoSize()
 		}
 	}
 	if (position == 0)
+	{
+		hasCheckedForMotionPhoto = true;
 		return videoSize;
+	}
 
 	if (position + sizeof(position) + sizeof(videoSize) < rawFileData.getSize())
 	{
