@@ -79,7 +79,7 @@ namespace yuzu
 
     juce::Image yuzu::ExtendedImageFileFormat::decodeThumbnail()
     {
-        if (loadMetadata())
+        if (loadMetadata() && exifMetadata)
         {
             return rotate(exifMetadata->getThumbnailImage(), getOriginalOrientation());
         }
