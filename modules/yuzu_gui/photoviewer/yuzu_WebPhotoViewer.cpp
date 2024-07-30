@@ -50,7 +50,7 @@ void yuzu::WebPhotoViewer::loadImage(juce::Image image)
 	}
 
 	juce::JPEGImageFormat jpg;
-	jpg.setQuality(0.9);
+	jpg.setQuality(0.9f);
 	auto file = FileHelpers::getTempFolder().getChildFile("tempimg.jpg");
 	file.deleteFile();
 	auto os = file.createOutputStream();
