@@ -1,7 +1,7 @@
 
 #include "yuzu_WebPhotoViewer.h"
 
-
+#if JUCE_WEB_BROWSER
 using namespace juce;
 
 yuzu::WebPhotoViewer::WebPhotoViewer() : 
@@ -29,3 +29,4 @@ void yuzu::WebPhotoViewer::loadImage(juce::File file)
 	goToURL(url.toString(true));
 	evaluateJavascript("document.addEventListener('contextmenu', event => event.preventDefault());");
 }
+#endif

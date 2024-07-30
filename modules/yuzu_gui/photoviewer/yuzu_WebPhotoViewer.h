@@ -5,6 +5,7 @@
 
 namespace yuzu
 {
+#if JUCE_WEB_BROWSER
     class WebPhotoViewer :
         public juce::WebBrowserComponent
     {
@@ -21,4 +22,5 @@ namespace yuzu
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(WebPhotoViewer)
     };
+#endif
 }
