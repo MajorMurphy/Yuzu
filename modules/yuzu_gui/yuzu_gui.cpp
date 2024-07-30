@@ -19,6 +19,6 @@
 #include "clipboard/yuzu_Clipboard_macos.mm"
 #include "clipboard/yuzu_Clipboard_linux.cpp"
 #include "clipboard/yuzu_Clipboard_android.cpp"
-
-
+#include "photoviewer/yuzu_WebPhotoViewer.cpp"
+#include "misc/yuzu_FileHelpers.cpp"
 

@@ -19,7 +19,7 @@
   license:            BSD
   minimumCppStandard: 17
 
-  dependencies:       juce_gui_basics
+  dependencies:       juce_gui_basics juce_gui_extra
   OSXFrameworks:      
   iOSFrameworks:      
 
@@ -35,3 +35,5 @@
 
 //==============================================================================
 #include "clipboard/yuzu_Clipboard.h"
+#include "photoviewer/yuzu_WebPhotoViewer.h"
+#include "misc/yuzu_FileHelpers.h"
