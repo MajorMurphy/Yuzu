@@ -20,8 +20,7 @@ Image yuzu::SystemClipboard::pasteImage()
     if (!IsClipboardFormatAvailable(CF_DIB))
     {
         jassertfalse;
-        auto error = GetLastError();
-        DBG("CF_DIB clipboard format not available. Error: " + String(error));
+        DBG("CF_DIB clipboard format not available. Error: " + String(GetLastError()));
         return img;
     }
 
